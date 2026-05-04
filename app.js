@@ -310,19 +310,16 @@ async function fetchFeed(source) {
 let _isInitialDataReady = false;
 
 async function loadAllFeeds(isInitial = false) {
-  // ── INSTANT ACCESS: If we have zero articles, show high-converting demo data immediately
-  // This ensures the user NEVER sees a blank screen or a long loading spinner
-  if (allArticles.length === 0 && !_isInitialDataReady) {
-    loadDemoFallback(); // Populate with premium demo intel instantly
-    _isInitialDataReady = true;
-  }
-  
-  // Transition smoothly from demo to live
-  if (loadingState.style.display !== 'none') {
+  // If we have articles in memory (from storage), show them instantly
+  if (allArticles.length > 0) {
     loadingState.style.display = 'none';
     newsGrid.style.display     = 'grid';
+  } else if (isInitial) {
+    // Only show loading if we literally have nothing
+    loadingState.style.display = 'flex';
+    newsGrid.style.display     = 'none';
   }
-
+  
   lastUpdated.innerHTML    = '<span class="radar-scan"></span> Neural Sync Active...';
   lastUpdated.style.color    = '#3b82f6';
 
@@ -346,13 +343,14 @@ async function loadAllFeeds(isInitial = false) {
         }
       });
 
-      if (newCount > 0) {
-        // Remove demo items if live data is arriving
-        allArticles = allArticles.filter(a => !a.id.startsWith('d'));
+      if (newCount > 0 || isInitial) {
         allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
         if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
         
-        // Batch UI updates using requestAnimationFrame for 60fps performance
+        // Instant Transition
+        loadingState.style.display = 'none';
+        newsGrid.style.display     = 'grid';
+
         requestAnimationFrame(() => {
           applyFiltersAndRender();
           renderTicker();
@@ -1047,24 +1045,12 @@ if (!hasGeminiKey() && !localStorage.getItem('studioSetupSeen')) {
   
   // If we have cached news, render immediately
   if (allArticles.length > 0) {
-    _isInitialDataReady = true;
     loadingState.style.display = 'none';
     newsGrid.style.display = 'grid';
     applyFiltersAndRender();
     renderTicker();
     renderRightPanel();
-  } else {
-    // Zero cache: Use demo fallback for instant "wow" factor while first sync runs
-    loadDemoFallback();
-    _isInitialDataReady = true;
-    loadingState.style.display = 'none';
-    newsGrid.style.display = 'grid';
   }
-
-  // 🗑️ CLEANUP
-  const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-  allArticles = allArticles.filter(a => (Date.now() - new Date(a.pubDate).getTime()) < TWO_DAYS_MS);
-  saveToStorage();
 
   // START LIVE SCAN
   loadAllFeeds(true);
