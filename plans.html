@@ -95,7 +95,7 @@
 
   <header class="header">
     <div class="header-inner">
-      <a href="index.html" class="brand">
+      <a href="dashboard.html" class="brand">
         <div class="brand-logo">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
             <rect width="32" height="32" rx="8" fill="#18181b"/>
@@ -114,7 +114,7 @@
           <span class="brand-tagline">Editorial OS</span>
         </div>
       </a>
-      <a href="index.html" class="back-btn">← Back to Dashboard</a>
+      <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
     </div>
   </header>
 
@@ -253,7 +253,7 @@
       if (currentUser.plan === plan) return;
       if (plan === 'free') {
         await window.KhansaaAuth.updateUserPlan(currentUser.id, 'free', 'monthly');
-        window.location.href = 'index.html';
+        window.location.href = 'dashboard.html';
         return;
       }
 
@@ -297,7 +297,7 @@
         const confirmed = confirm(`Ziina sandbox: Activate ${plan} plan now?\n(In production this redirects to Ziina checkout)`);
         if (confirmed) {
           await window.KhansaaAuth.updateUserPlan(currentUser.id, plan, billingCycle);
-          window.location.href = 'index.html';
+          window.location.href = 'dashboard.html';
         }
       }
     }

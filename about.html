@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Atheer Editorial OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #09090b; --bg-surface: #121214; --bg-card: #18181b;
+      --border: rgba(255,255,255,0.08); --border-light: rgba(255,255,255,0.15);
+      --text-primary: #fafafa; --text-secondary: #a1a1aa; --text-muted: #71717a;
+      --accent-blue: #3b82f6; --accent-teal: #14b8a6;
+      --font-body: 'Inter', sans-serif; --font-display: 'Playfair Display', serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--bg-base); color: var(--text-primary); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Navigation */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(9,9,11,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-logo svg { width: 32px; height: 32px; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .brand-tag { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-teal); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s; }
+    .nav-link.active { color: var(--accent-blue); }
+    .nav-link:hover { color: var(--text-primary); }
+    .btn { display: inline-block; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; transition: 0.2s; cursor: pointer; }
+    .btn-outline { background: transparent; border: 1px solid var(--border-light); color: var(--text-primary); }
+    .btn-outline:hover { background: var(--bg-card); border-color: var(--text-muted); }
+    
+    /* Page Content */
+    .page-header { padding: 160px 24px 80px; text-align: center; border-bottom: 1px solid var(--border); }
+    .page-header h1 { font-family: var(--font-display); font-size: 52px; margin-bottom: 16px; }
+    .page-header p { font-size: 18px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+    
+    .content-block { max-width: 800px; margin: 80px auto; padding: 0 24px; flex: 1; }
+    .content-block h2 { font-family: var(--font-display); font-size: 32px; margin-bottom: 24px; color: var(--accent-teal); }
+    .content-block p { font-size: 16px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.8; }
+    
+    .mission-box { background: var(--bg-surface); border: 1px solid var(--border); padding: 40px; border-radius: 12px; margin: 40px 0; border-left: 4px solid var(--accent-blue); }
+    .mission-box h3 { font-family: var(--font-display); font-size: 24px; margin-bottom: 12px; }
+    .mission-box p { margin: 0; color: var(--text-primary); font-size: 16px; }
+
+    /* Footer */
+    footer { padding: 60px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); margin-top: auto; }
+    .footer-links a { color: var(--text-secondary); text-decoration: none; margin-left: 24px; font-size: 13px; transition: 0.2s; }
+    .footer-links a:hover { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="brand">
+      <div class="brand-logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#18181b"/><path d="M16 6L26 12v12l-10 6-10-6V12l10-6z" stroke="url(#g1)" stroke-width="2" stroke-linejoin="round"/><path d="M16 18v8M10 14l6 4 6-4" stroke="url(#g1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g1" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#f8fafc"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs></svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Atheer</span>
+        <span class="brand-tag">Editorial OS</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="features.html" class="nav-link">Features</a>
+      <a href="about.html" class="nav-link active">About</a>
+      <a href="plans.html" class="nav-link">Pricing</a>
+      <a href="auth.html" class="btn btn-outline">Sign In / Register</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <h1>Built for the Modern Newsroom.</h1>
+    <p>Atheer bridges the gap between global intelligence and Arabic media publishing.</p>
+  </header>
+
+  <main class="content-block">
+    <h2>The News Cycle Doesn't Wait.</h2>
+    <p>In the high-stakes environment of modern journalism, speed and accuracy are everything. Editorial teams across the GCC face a dual challenge: monitoring thousands of global sources for breaking news, and accurately translating that complex, nuanced information into professional Arabic journalism before the competition does.</p>
+    
+    <p>Traditionally, this required multiple disconnected tools—an RSS reader, Google Translate, a text editor, and a CMS. We built Atheer to collapse this entire workflow into a single, unified operating system.</p>
+    
+    <div class="mission-box">
+      <h3>Our Mission</h3>
+      <p>To empower journalists, translators, and media agencies with a unified workspace that seamlessly combines real-time global intelligence gathering with elite AI-assisted Arabic translation.</p>
+    </div>
+
+    <h2>Who is Atheer For?</h2>
+    <p><strong>News Agencies & Editors:</strong> Stay ahead of global trends with our Live Pulse Radar, curating the most important stories tailored for the UAE and broader GCC markets.</p>
+    <p><strong>Translators & Copywriters:</strong> Stop wrestling with literal, robotic translations. Atheer's AI Studio is fine-tuned for journalistic Arabic, offering formats ranging from full articles to brief summaries and headlines.</p>
+    <p><strong>Corporate Intelligence Teams:</strong> For businesses that need to monitor global markets (Crypto, Gold, Finance) and distill that information into internal Arabic briefs instantly.</p>
+  </main>
+
+  <footer>
+    <div style="font-size: 12px; color: var(--text-muted);">
+      &copy; 2026 Atheer Editorial Intelligence.
+    </div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="plans.html">Pricing</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </footer>
+
+</body>
+</html>

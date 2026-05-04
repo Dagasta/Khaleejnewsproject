@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atheer | Editorial Intelligence OS</title>
+  <meta name="description" content="Atheer — The premium editorial operating system for live news and AI-powered translation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#18181b"/>
+            <path d="M16 6L26 12v12l-10 6-10-6V12l10-6z" stroke="url(#gradAxiom)" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M16 18v8M10 14l6 4 6-4" stroke="url(#gradAxiom)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="gradAxiom" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#f8fafc"/>
+                <stop offset="1" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-name">Atheer</span>
+          <span class="brand-tagline">Editorial OS</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          <span>LIVE</span>
+        </div>
+        <div class="last-updated" id="lastUpdated">Updating...</div>
+        <button class="arabic-studio-btn" id="openStudioBtn" title="Arabic Editorial Studio">
+          <span class="studio-icon">✍️</span>
+          <span>Arabic Studio</span>
+        </button>
+        <button class="refresh-btn" id="refreshBtn" title="Refresh news">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          Refresh
+        </button>
+        <!-- User Menu -->
+        <div class="user-menu" id="userMenu">
+          <button class="user-avatar-btn" id="userAvatarBtn" onclick="toggleUserMenu()">
+            <span class="user-avatar" id="userAvatarInitial">?</span>
+            <span class="user-plan-badge" id="userPlanBadge">Free</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="ud-info">
+              <div class="ud-name" id="udName">User</div>
+              <div class="ud-email" id="udEmail">—</div>
+              <div class="ud-plan" id="udPlan">Free Plan</div>
+            </div>
+            <div class="ud-divider"></div>
+            <a href="plans.html" class="ud-item">⭐ Upgrade Plan</a>
+            <a href="THE_ELITE_RADAR.html" class="ud-item" id="eliteRadarLink">⚡ Elite Radar</a>
+            <div class="ud-divider"></div>
+            <button class="ud-item ud-signout" onclick="window.KhansaaAuth.signOut()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- TRIAL / UPGRADE BANNER -->
+  <div class="upgrade-banner" id="upgradeBanner" style="display:none">
+    <span id="upgradeBannerText">⭐ You're on the Free plan.</span>
+    <a href="plans.html" class="upgrade-banner-btn">Upgrade to Pro →</a>
+    <button class="upgrade-banner-close" onclick="document.getElementById('upgradeBanner').style.display='none'">✕</button>
+  </div>
+
+  <!-- PRIORITY TICKER -->
+  <div class="ticker-wrapper">
+    <div class="ticker-label">BREAKING</div>
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ticker-inner" id="tickerInner">Loading latest headlines...</div>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item">
+      <span class="stat-num" id="statTotal">—</span>
+      <span class="stat-label">Articles Scanned</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="statFiltered">—</span>
+      <span class="stat-label">High Priority</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="statSources">—</span>
+      <span class="stat-label">Sources Active</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num" id="statCategories">4</span>
+      <span class="stat-label">Topic Areas</span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- SIDEBAR: FILTERS -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Topics</h3>
+        <div class="filter-list" id="topicFilters">
+          <button class="filter-btn active" data-filter="all">
+            <span class="filter-icon">🌐</span> All Topics
+            <span class="filter-count" id="count-all">—</span>
+          </button>
+          <button class="filter-btn" data-filter="uae">
+            <span class="filter-icon">🇦🇪</span> UAE & Dubai
+            <span class="filter-count" id="count-uae">—</span>
+          </button>
+          <button class="filter-btn" data-filter="economy">
+            <span class="filter-icon">📈</span> Economy & Business
+            <span class="filter-count" id="count-economy">—</span>
+          </button>
+          <button class="filter-btn" data-filter="politics">
+            <span class="filter-icon">🏛️</span> Politics
+            <span class="filter-count" id="count-politics">—</span>
+          </button>
+          <button class="filter-btn" data-filter="rankings">
+            <span class="filter-icon">🏆</span> Global Rankings
+            <span class="filter-count" id="count-rankings">—</span>
+          </button>
+          <button class="filter-btn" data-filter="markets">
+            <span class="filter-icon">💰</span> Market Analysis
+            <span class="filter-count" id="count-markets">—</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Priority Level</h3>
+        <div class="filter-list" id="priorityFilters">
+          <button class="filter-btn priority-btn active" data-priority="all">All Priorities</button>
+          <button class="filter-btn priority-btn" data-priority="high">
+            <span class="priority-dot high"></span> High Priority
+          </button>
+          <button class="filter-btn priority-btn" data-priority="medium">
+            <span class="priority-dot medium"></span> Medium
+          </button>
+          <button class="filter-btn priority-btn" data-priority="low">
+            <span class="priority-dot low"></span> Low
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Sources</h3>
+        <div class="source-list" id="sourceList">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Search</h3>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search headlines..." class="search-input" />
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <section class="content-area">
+      <!-- TOP STORIES -->
+      <div class="section-header">
+        <h2 class="section-title" id="sectionTitle">All Topics</h2>
+        <div class="view-controls">
+          <button class="view-btn active" id="viewGrid" title="Grid view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" id="viewList" title="List view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="2"/><rect x="3" y="11" width="18" height="2"/><rect x="3" y="18" width="18" height="2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div class="loading-state" id="loadingState">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Scanning sources and filtering news...</p>
+        <p class="loading-sub">Analyzing relevance for UAE, Economy, Politics & Rankings</p>
+      </div>
+
+      <!-- ERROR STATE -->
+      <div class="error-state" id="errorState" style="display:none">
+        <div class="error-icon">⚠️</div>
+        <h3>Unable to fetch live news</h3>
+        <p>This may be a network or CORS issue. Showing cached demo data instead.</p>
+        <button class="refresh-btn" onclick="window.location.reload()">Try Again</button>
+      </div>
+
+      <!-- NEWS GRID -->
+      <div class="news-grid" id="newsGrid" style="display:none">
+        <!-- Cards populated by JS -->
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state" id="emptyState" style="display:none">
+        <p>No articles match your current filter.</p>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: DAILY BRIEF -->
+    <aside class="right-panel">
+      <div class="brief-card">
+        <div class="brief-header">
+          <h3 class="brief-title">📋 Today's Brief</h3>
+          <button class="copy-btn" id="copyBriefBtn">Copy</button>
+        </div>
+        <div class="brief-content" id="dailyBrief">
+          <p class="brief-placeholder">Loading editorial brief...</p>
+        </div>
+      </div>
+
+      <div class="brief-card">
+        <div class="brief-header">
+          <h3 class="brief-title">🔥 Trending Now</h3>
+        </div>
+        <div class="trending-list" id="trendingList">
+          <!-- populated -->
+        </div>
+      </div>
+
+      <div class="brief-card">
+        <div class="brief-header">
+          <h3 class="brief-title">📊 Coverage Map</h3>
+        </div>
+        <div class="coverage-map" id="coverageMap">
+          <!-- bars -->
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ARTICLE MODAL (Studio Pane) -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="articleModal">
+      <div class="modal-header">
+        <div class="modal-meta">
+          <span class="modal-category" id="modalCategory"></span>
+          <div style="display:flex;gap:12px;margin-top:4px">
+            <span class="modal-source" id="modalSource"></span>
+            <span class="modal-date" id="modalDate"></span>
+          </div>
+        </div>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <p class="modal-summary" id="modalSummary"></p>
+
+      <div class="modal-actions">
+        <a href="#" id="modalLink" target="_blank" class="modal-btn primary">View Original ↗</a>
+        <button class="modal-btn secondary" id="modalCopy">Copy Snippet</button>
+        <button class="modal-btn arabic" id="modalRewriteArabic">✦ Atheer Arabic</button>
+      </div>
+
+      <div class="modal-publish-block" id="modalPublishBlock" style="display:none">
+        <h4>📝 Quick Snippet</h4>
+        <div class="publish-text" id="publishText"></div>
+        <button class="modal-btn secondary" id="copyPublishBtn">Copy Snippet</button>
+      </div>
+
+      <!-- Arabic rewrite result inside modal -->
+      <div class="modal-arabic-result" id="modalArabicResult" style="display:none">
+        <div class="arabic-result-header">
+          <span>✦ Atheer AI Translation</span>
+          <button class="copy-btn" id="copyModalArabicBtn">Copy</button>
+        </div>
+        <div class="arabic-result-text" id="modalArabicText" dir="rtl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ARABIC EDITORIAL STUDIO PANEL ===== -->
+  <div class="studio-overlay" id="studioOverlay">
+    <div class="studio-panel" id="studioPanel">
+
+      <!-- Studio Header -->
+      <div class="studio-header">
+        <div class="studio-header-left">
+          <div class="studio-logo">✦</div>
+          <div>
+            <h2 class="studio-title">Atheer Studio</h2>
+            <p class="studio-subtitle">Arabic Editorial Engine</p>
+          </div>
+        </div>
+        <div class="studio-header-right">
+          <button class="studio-settings-btn" id="openApiSetupBtn" title="API Settings">⚙️ API Key</button>
+          <button class="studio-close" id="closeStudioBtn">✕</button>
+        </div>
+      </div>
+
+      <!-- Studio Body -->
+      <div class="studio-body">
+
+        <!-- LEFT: Input -->
+        <div class="studio-input-col">
+          <div class="studio-section-label">📥 English Article / Headline</div>
+          <textarea
+            id="studioInputText"
+            class="studio-textarea"
+            placeholder="Paste any English news article, headline, or paragraph here...
+The system will rewrite it as professional UAE Arabic editorial content."
+          ></textarea>
+
+          <div class="studio-options">
+            <div class="option-group">
+              <label class="option-label">Format</label>
+              <select id="studioFormat" class="studio-select">
+                <option value="article">خبر كامل (Full News Article)</option>
+                <option value="brief">خبر مختصر (Brief News)</option>
+                <option value="analysis">تحليل (Analysis Piece)</option>
+                <option value="headline">عنوان رئيسي (Headline Only)</option>
+              </select>
+            </div>
+            <div class="option-group">
+              <label class="option-label">Tone</label>
+              <select id="studioTone" class="studio-select">
+                <option value="formal">رسمي (Formal)</option>
+                <option value="neutral">محايد (Neutral / Wire)</option>
+                <option value="analytical">تحليلي (Analytical)</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="studio-rewrite-btn" id="studioRewriteBtn">
+            <span id="rewriteBtnText">✍️ Rewrite in Arabic تحرير عربي</span>
+            <div class="btn-spinner" id="rewriteSpinner" style="display:none"></div>
+          </button>
+
+          <div class="studio-engine-info" id="studioEngineInfo">
+            <span class="engine-dot" id="engineDot"></span>
+            <span id="engineLabel">Loading...</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: Output -->
+        <div class="studio-output-col">
+          <div class="studio-section-label" dir="rtl">📤 Atheer Translation Output</div>
+
+          <!-- Idle state -->
+          <div class="studio-idle" id="studioIdle">
+            <div class="idle-icon">✦</div>
+            <p>Paste text & click Rewrite</p>
+            <p class="idle-sub">Your professional Arabic translation will appear here.</p>
+          </div>
+
+          <!-- Loading state -->
+          <div class="studio-loading" id="studioLoading" style="display:none">
+            <div class="arabic-spinner"></div>
+            <p>جارٍ إعداد التحرير الصحفي...</p>
+            <p class="idle-sub">Crafting professional Arabic editorial content</p>
+          </div>
+
+          <!-- Result -->
+          <div class="studio-result" id="studioResult" style="display:none">
+            <div class="result-toolbar">
+              <div class="result-meta" id="resultMeta"></div>
+              <div class="result-actions">
+                <button class="result-btn" id="copyArabicBtn">📋 نسخ النص</button>
+                <button class="result-btn" id="retryBtn">🔄 إعادة</button>
+              </div>
+            </div>
+            <div class="result-text" id="arabicResultText" dir="rtl" lang="ar"></div>
+            <div class="result-footer">
+              <span id="resultWordCount"></span>
+              <span class="result-ready">✓ جاهز للنشر</span>
+            </div>
+          </div>
+
+          <!-- History -->
+          <div class="studio-history" id="studioHistory" style="display:none">
+            <div class="history-label">📂 السابق</div>
+            <div id="historyList" class="history-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== API KEY SETUP MODAL ===== -->
+  <div class="apikey-overlay" id="apikeyOverlay">
+    <div class="apikey-modal">
+      <div class="apikey-header">
+        <h3>🔑 Gemini API Key Setup</h3>
+        <button class="modal-close" id="closeApiKeyBtn">✕</button>
+      </div>
+      <div class="apikey-body">
+        <div class="apikey-info">
+          <strong>100% Free — Google Gemini gives you:</strong>
+          <ul>
+            <li>✅ 1,000,000 tokens per day free</li>
+            <li>✅ 15 requests per minute</li>
+            <li>✅ No credit card required</li>
+          </ul>
+        </div>
+        <div class="apikey-steps">
+          <p class="steps-title">How to get your free API key:</p>
+          <ol>
+            <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" class="apikey-link">aistudio.google.com/app/apikey ↗</a></li>
+            <li>Sign in with your Google account</li>
+            <li>Click <strong>"Create API Key"</strong></li>
+            <li>Copy and paste it below</li>
+          </ol>
+        </div>
+        <div class="apikey-input-group">
+          <input type="password" id="geminiKeyInput" class="apikey-input" placeholder="Paste your Gemini API key here..." autocomplete="off" />
+          <button class="apikey-toggle" id="toggleKeyVisibility" title="Show/Hide">👁</button>
+        </div>
+        <div class="apikey-note">Your key is stored only in your browser (localStorage). It is never sent anywhere except directly to Google's API.</div>
+        <div class="apikey-footer">
+          <button class="apikey-save-btn" id="saveApiKeyBtn">Save &amp; Activate</button>
+          <button class="apikey-skip-btn" id="skipApiKeyBtn">Use Free Fallback Instead</button>
+        </div>
+        <div class="apikey-fallback-note" id="fallbackNote">
+          ⚠️ Without a Gemini key, basic translation will be used (MyMemory API). Quality will be lower — not full editorial rewriting.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // ── Async Auth guard & user menu (Supabase) ───────────────
+    (async function() {
+      const user = await window.KhansaaAuth.requireAuth();
+      if (!user) return;
+      const plan = window.KhansaaAuth.getUserPlan(user);
+
+      document.getElementById('userAvatarInitial').textContent = (user.name || user.email || 'U')[0].toUpperCase();
+      document.getElementById('udName').textContent = user.name || '—';
+      document.getElementById('udEmail').textContent = user.email;
+      document.getElementById('udPlan').textContent = plan.isTrial ? 'Pro (Trial)' : (plan.name + ' Plan');
+      document.getElementById('userPlanBadge').textContent = plan.isTrial ? 'TRIAL' : plan.name.toUpperCase();
+      document.getElementById('userPlanBadge').className = 'user-plan-badge plan-' + (plan.isTrial ? 'trial' : plan.id);
+
+      if (!plan.limits.hasEliteRadar) {
+        const el = document.getElementById('eliteRadarLink');
+        el.href = 'plans.html';
+        el.textContent = '🔒 Elite Radar (Upgrade)';
+      }
+
+      if (user.plan === 'free' && !plan.isTrial) {
+        document.getElementById('upgradeBanner').style.display = 'flex';
+        document.getElementById('upgradeBannerText').textContent = '⭐ You are on the Free plan — unlock all features with Pro.';
+      } else if (plan.isTrial) {
+        const daysLeft = Math.ceil((plan.trialEndsAt - Date.now()) / 86400000);
+        document.getElementById('upgradeBanner').style.display = 'flex';
+        document.getElementById('upgradeBannerText').textContent = `⏳ Pro Trial: ${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining.`;
+        document.getElementById('upgradeBanner').style.background = 'rgba(26,108,246,0.12)';
+        document.getElementById('upgradeBanner').style.borderBottom = '1px solid rgba(26,108,246,0.25)';
+        document.getElementById('upgradeBanner').style.color = '#7eb8ff';
+      }
+
+      window.__khansaaUser = user;
+      window.__khansaaPlan = plan;
+    })();
+
+    function toggleUserMenu() {
+      document.getElementById('userDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', e => {
+      if (!document.getElementById('userMenu').contains(e.target)) {
+        document.getElementById('userDropdown').classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>

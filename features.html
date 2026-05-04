@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Features | Atheer Editorial OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #09090b; --bg-surface: #121214; --bg-card: #18181b;
+      --border: rgba(255,255,255,0.08); --border-light: rgba(255,255,255,0.15);
+      --text-primary: #fafafa; --text-secondary: #a1a1aa; --text-muted: #71717a;
+      --accent-blue: #3b82f6; --accent-teal: #14b8a6; --accent-purple: #a855f7;
+      --font-body: 'Inter', sans-serif; --font-display: 'Playfair Display', serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); background: var(--bg-base); color: var(--text-primary); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Navigation */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(9,9,11,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-logo svg { width: 32px; height: 32px; }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-name { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .brand-tag { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-teal); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s; }
+    .nav-link.active { color: var(--accent-blue); }
+    .nav-link:hover { color: var(--text-primary); }
+    .btn { display: inline-block; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; transition: 0.2s; cursor: pointer; }
+    .btn-outline { background: transparent; border: 1px solid var(--border-light); color: var(--text-primary); }
+    .btn-outline:hover { background: var(--bg-card); border-color: var(--text-muted); }
+    
+    /* Page Content */
+    .page-header { padding: 160px 24px 80px; text-align: center; border-bottom: 1px solid var(--border); }
+    .page-header h1 { font-family: var(--font-display); font-size: 52px; margin-bottom: 16px; }
+    .page-header p { font-size: 18px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+    
+    .features-grid { max-width: 1200px; margin: 80px auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; flex: 1; }
+    .feature-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; transition: 0.3s; position: relative; overflow: hidden; }
+    .feature-card:hover { border-color: var(--accent-blue); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .feature-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background: transparent; transition: 0.3s; }
+    .feature-card:hover::before { background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal)); }
+    
+    .f-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 24px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-light); }
+    .feature-card h3 { font-family: var(--font-display); font-size: 24px; margin-bottom: 16px; color: var(--text-primary); }
+    .feature-card p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+    
+    /* Footer */
+    footer { padding: 60px 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); margin-top: auto; }
+    .footer-links a { color: var(--text-secondary); text-decoration: none; margin-left: 24px; font-size: 13px; transition: 0.2s; }
+    .footer-links a:hover { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="brand">
+      <div class="brand-logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#18181b"/><path d="M16 6L26 12v12l-10 6-10-6V12l10-6z" stroke="url(#g1)" stroke-width="2" stroke-linejoin="round"/><path d="M16 18v8M10 14l6 4 6-4" stroke="url(#g1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g1" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse"><stop stop-color="#f8fafc"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs></svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Atheer</span>
+        <span class="brand-tag">Editorial OS</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="features.html" class="nav-link active">Features</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="plans.html" class="nav-link">Pricing</a>
+      <a href="auth.html" class="btn btn-outline">Sign In / Register</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <h1>Platform Capabilities.</h1>
+    <p>Everything you need to gather intelligence and publish in Arabic, securely housed within one unified operating system.</p>
+  </header>
+
+  <main class="features-grid">
+    <div class="feature-card">
+      <div class="f-icon" style="color: var(--accent-blue);">🌐</div>
+      <h3>Live Intelligence Radar</h3>
+      <p>Atheer continuously aggregates and curates live news from top-tier global sources (Reuters, Bloomberg, TechCrunch, etc.). Bypassing traditional RSS clutter, it ranks news by relevance to the UAE and GCC economies, ensuring you only see what matters.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-icon" style="color: var(--accent-teal);">✦</div>
+      <h3>Atheer AI Studio</h3>
+      <p>A full-screen, split-pane workspace designed for journalism. Paste any English article, and Atheer's AI translates and rewrites it into professional, culturally-accurate Arabic. Choose your tone (Formal, Analytical, Neutral) and format (Full article, Brief, Headline).</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-icon" style="color: var(--accent-purple);">⚡</div>
+      <h3>Elite Radar (V3)</h3>
+      <p>Exclusive to our Elite plan users, the Radar is an underground intelligence hub scanning for hidden market alpha, scalable SaaS business models, and AI agency goldmines before they hit the mainstream media.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-icon" style="color: #f59e0b;">📋</div>
+      <h3>Automated Daily Briefs</h3>
+      <p>Click one button to instantly compile your curated news feed into a neatly formatted "Daily Brief" text snippet. Perfect for sharing directly to WhatsApp groups, internal team chats, or newsletter drafts.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-icon" style="color: #ef4444;">🔒</div>
+      <h3>Enterprise Security</h3>
+      <p>Atheer is built on a rock-solid Supabase infrastructure. Your sessions, data, and settings are fully encrypted. Use your own API keys for AI translation with zero risk of key leakage, as keys are stored locally in your browser.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-icon" style="color: #6366f1;">💻</div>
+      <h3>Dark Mode IDE Design</h3>
+      <p>Journalists spend hours staring at screens. Atheer's UI is meticulously designed with a dark, low-contrast "IDE-style" aesthetic. It minimizes eye strain and removes visual clutter, letting you focus purely on the story.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div style="font-size: 12px; color: var(--text-muted);">
+      &copy; 2026 Atheer Editorial Intelligence.
+    </div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="plans.html">Pricing</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+  </footer>
+
+</body>
+</html>
