@@ -297,9 +297,11 @@ async function fetchFeed(source) {
   }).filter(a => a.title.length > 10);
 }
 
+let _isInitialDataReady = false;
+
 async function loadAllFeeds(isInitial = false) {
-  // Only show full-screen spinner if the app is totally empty
-  if (allArticles.length === 0) {
+  // Only show full-screen spinner on absolute first boot if no storage
+  if (allArticles.length === 0 && !_isInitialDataReady) {
     loadingState.style.display = 'flex';
     newsGrid.style.display     = 'none';
   }
@@ -329,17 +331,20 @@ async function loadAllFeeds(isInitial = false) {
 
       // Immediate UI Update if new news found
       if (addedAny || isInitial) {
+        _isInitialDataReady = true;
         allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
         allArticles = allArticles.slice(0, 2000);
         saveToStorage();
         
-        // Hide spinner as soon as we have data
-        loadingState.style.display = 'none';
-        newsGrid.style.display     = 'grid';
-        
-        applyFiltersAndRender();
-        renderTicker();
-        renderRightPanel();
+        // Instant Transition
+        if (allArticles.length > 0) {
+          loadingState.style.display = 'none';
+          newsGrid.style.display     = 'grid';
+          
+          applyFiltersAndRender();
+          renderTicker();
+          renderRightPanel();
+        }
       }
     } catch (e) {
       console.warn(`Failed: ${s.name}`, e);
@@ -524,11 +529,11 @@ function applyFiltersAndRender() {
   const plan = getPlan();
   const isFree = plan.id === 'free';
   
-  // Soft cap: blurred access after 5 articles for free users
-  // We keep the actual limit but blur everything after index 4
+  // High-End Strategy: Show all articles but blur after 5
+  // We no longer slice (which was causing 'empty' looking lists)
+  // Instead we let the renderCard handle the blurring
   if (isFree && plan.limits.articlesPerDay !== Infinity) {
-    // We allow them to see the existence of up to their limit, but we will blur later
-    filtered = filtered.slice(0, Math.max(8, plan.limits.articlesPerDay));
+    // We let them scroll, seeing the blurred cards
   }
 
   // Update counts (Universal Match Logic — MUST MATCH GRID FILTERS)
