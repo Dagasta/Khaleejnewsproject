@@ -244,42 +244,52 @@ function buildSummary(description) {
   return clean.length > 240 ? clean.slice(0, 237) + '…' : clean;
 }
 
-// ── FETCH — with multi-proxy fallback ───────────────────────
+// ── TURBO FETCH — Aggressive Parallel Racing ────────────────
 async function fetchWithProxy(url) {
   const shuffled = [...PROXIES].sort(() => Math.random() - 0.5);
-  const raceCount = 3; // Race top 3 for maximum speed
+  // Race TOP 4 proxies simultaneously for ultra-low latency
+  const raceCount = 4; 
   const controller = new AbortController();
   
   const race = shuffled.slice(0, raceCount).map(proxyFn => {
     return (async () => {
-      const separator = url.includes('?') ? '&' : '?';
-      const cacheBustedUrl = `${url}${separator}live_radar_v6=${Date.now()}`;
-      const res = await fetch(proxyFn(cacheBustedUrl), { signal: controller.signal });
-      if (!res.ok) throw new Error('Proxy fail');
-      const text = await res.text();
-      if (text && text.length > 200) {
-        controller.abort(); // Cancel the other racing requests
-        return text;
+      try {
+        // Fast timeout for the race phase: 6 seconds
+        const res = await fetch(proxyFn(url), { 
+          signal: controller.signal,
+          priority: 'high'
+        });
+        if (!res.ok) throw new Error('Proxy fail');
+        const text = await res.text();
+        if (text && text.length > 300) {
+          controller.abort(); 
+          return text;
+        }
+        throw new Error('Invalid');
+      } catch (e) {
+        throw e;
       }
-      throw new Error('Response invalid');
     })();
   });
 
   try {
+    // Return the first successful result instantly
     return await Promise.any(race);
   } catch (e) {
-    // Fallback: try the rest one-by-one if the race failed
-    for (const proxyFn of shuffled.slice(raceCount)) {
-      try {
-        const res = await fetch(proxyFn(url), { signal: AbortSignal.timeout(3000) });
-        if (res.ok) {
+    // Ultra-fast Fallback: Race the remaining proxies in a second batch
+    const secondaryRace = shuffled.slice(raceCount, raceCount + 4).map(proxyFn => {
+      return (async () => {
+        try {
+          const res = await fetch(proxyFn(url), { signal: AbortSignal.timeout(5000) });
           const text = await res.text();
-          if (text && text.length > 200) return text;
-        }
-      } catch (_) {}
-    }
+          if (text && text.length > 300) return text;
+          throw new Error('fail');
+        } catch (_) { throw _; }
+      })();
+    });
+    try { return await Promise.any(secondaryRace); } catch (e2) {}
   }
-  throw new Error('All satellites blocked.');
+  throw new Error('Global Satellite Blackout.');
 }
 
 async function fetchFeed(source) {
@@ -300,62 +310,70 @@ async function fetchFeed(source) {
 let _isInitialDataReady = false;
 
 async function loadAllFeeds(isInitial = false) {
-  // Only show full-screen spinner on absolute first boot if no storage
   if (allArticles.length === 0 && !_isInitialDataReady) {
     loadingState.style.display = 'flex';
     newsGrid.style.display     = 'none';
   }
   
-  lastUpdated.innerHTML    = '<span class="radar-scan"></span> Background Sync Active...';
-  lastUpdated.style.color    = '#0abfbc';
+  lastUpdated.innerHTML    = '<span class="radar-scan"></span> High-Speed Sync...';
+  lastUpdated.style.color    = '#3b82f6';
 
+  // Sort sources: Official WAM/News first for fastest landing
+  const sortedSources = [...SOURCES].sort((a,b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
+  
   let successCount = 0;
-  let processedSourceCount = 0;
+  let processed = 0;
 
-  // Optimized: Incremental rendering — Update UI for EACH source as it completes
-  SOURCES.forEach(async (s) => {
-    try {
-      const feedItems = await fetchFeed(s);
-      let addedAny = false;
-      feedItems.forEach(item => {
-        const exists = allArticles.some(ex => ex.link === item.link || (ex.title === item.title && ex.source === item.source));
-        if (!exists) {
-          const score = scoreArticle(item, s.cat);
-          Object.assign(item, score); 
-          allArticles.unshift(item);
-          addedAny = true;
-        }
-      });
-      successCount++;
-      sourceStatuses[s.name] = 'online';
-
-      // Immediate UI Update if new news found
-      if (addedAny || isInitial) {
-        _isInitialDataReady = true;
-        allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
-        allArticles = allArticles.slice(0, 2000);
-        saveToStorage();
+  // SMART CONCURRENCY: Process in chunks of 5 to avoid browser network congestion
+  const CHUNK_SIZE = 5;
+  for (let i = 0; i < sortedSources.length; i += CHUNK_SIZE) {
+    const chunk = sortedSources.slice(i, i + CHUNK_SIZE);
+    
+    await Promise.allSettled(chunk.map(async (s) => {
+      try {
+        const feedItems = await fetchFeed(s);
+        let addedAny = false;
         
-        // Instant Transition
-        if (allArticles.length > 0) {
-          loadingState.style.display = 'none';
-          newsGrid.style.display     = 'grid';
+        feedItems.forEach(item => {
+          const exists = allArticles.some(ex => ex.id === item.id || ex.link === item.link);
+          if (!exists) {
+            Object.assign(item, scoreArticle(item, s.cat)); 
+            allArticles.unshift(item);
+            addedAny = true;
+          }
+        });
+
+        successCount++;
+        sourceStatuses[s.name] = 'online';
+
+        if (addedAny || isInitial) {
+          _isInitialDataReady = true;
+          // De-duplicate and sort efficiently
+          allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+          if (allArticles.length > 1000) allArticles = allArticles.slice(0, 1000);
           
-          applyFiltersAndRender();
-          renderTicker();
-          renderRightPanel();
+          if (allArticles.length > 0) {
+            loadingState.style.display = 'none';
+            newsGrid.style.display     = 'grid';
+            requestAnimationFrame(() => {
+              applyFiltersAndRender();
+              renderTicker();
+              renderRightPanel();
+            });
+          }
         }
+      } catch (e) {
+        sourceStatuses[s.name] = 'error';
+      } finally {
+        processed++;
       }
-    } catch (e) {
-      console.warn(`Failed: ${s.name}`, e);
-      sourceStatuses[s.name] = 'error';
-    } finally {
-      processedSourceCount++;
-      if (processedSourceCount === SOURCES.length) {
-        finishScan(successCount);
-      }
-    }
-  });
+    }));
+    
+    // Save to storage after each chunk for safety
+    saveToStorage();
+  }
+  
+  finishScan(successCount);
 }
 
 function finishScan(successCount) {
