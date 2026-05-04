@@ -93,6 +93,7 @@ body {
 .sat-item:hover { background: rgba(212, 175, 55, 0.05); border-color: var(--gold-glow); }
 .sat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .sat-dot.green { background: #10b981; box-shadow: 0 0 10px #10b981; }
+.sat-dot.yellow { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
 .sat-dot.red { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
 .sat-dot.gray { background: #4a5568; }
 .sat-name { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -110,13 +111,14 @@ body {
         </div>
         <div class="status-bar">
             <div id="lastUpdated" class="live-intel"><span class="radar-orb"></span> LIVE INTEL SCAN</div>
+            <button onclick="localStorage.removeItem('ELITE_ARCHIVE_V3'); location.reload();" style="background:rgba(239,68,68,0.1); border:1px solid var(--power-red); color:var(--power-red); padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:700; font-size:10px; letter-spacing:1px; margin-right:8px;">CLEAR CACHE</button>
             <button onclick="loadAllFeeds()" style="background:transparent; border:1px solid var(--gold); color:var(--gold); padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:11px; letter-spacing:1px;">FORCE REFRESH</button>
         </div>
     </header>
 
     <div class="power-ticker">
         <div class="label">EMPIRE PULSE</div>
-        <div id="ticker" class="ticker-content">Initializing Military-Grade AI Scanners... Fetching elite scaling dispatches... Authenticating high-performance mindset wires...</div>
+        <div id="ticker" class="ticker-content">Initializing Neural Intelligence Scanners... Scanning for underrated AI tools... Identifying massive market gaps... Authenticating revenue-generating blueprints...</div>
     </div>
 
     <div class="container">
@@ -126,10 +128,13 @@ body {
                 <h3 class="section-title">COMMAND CHANNELS</h3>
                 <nav>
                     <div class="nav-item active" data-filter="all">🌐 GLOBAL HUB <span class="nav-count" id="count-all">0</span></div>
-                    <div class="nav-item" data-filter="ai-scale">🤖 AI AGENCY SCALE <span class="nav-count" id="count-ai">0</span></div>
-                    <div class="nav-item" data-filter="biz-scaling">🚀 EMPIRE BUILDING <span class="nav-count" id="count-biz">0</span></div>
-                    <div class="nav-item" data-filter="mindset">🧠 POWER & MINDSET <span class="nav-count" id="count-mind">0</span></div>
-                    <div class="nav-item" data-filter="ai-toolbox">🛠️ THE TOOL BOX <span class="nav-count" id="count-tools">0</span></div>
+                    <div class="nav-item" data-filter="ai-arsenal">🛠️ AI ARSENAL <span class="nav-count" id="count-arsenal">0</span></div>
+                    <div class="nav-item" data-filter="saas-hub">🚀 SAAS HUB <span class="nav-count" id="count-saas">0</span></div>
+                    <div class="nav-item" data-filter="money-concepts">💡 MONEY CONCEPTS <span class="nav-count" id="count-money">0</span></div>
+                    <div class="nav-item" data-filter="agency-gold">🏢 AGENCY GOLD <span class="nav-count" id="count-agency">0</span></div>
+                    <div class="nav-item" data-filter="market-alpha">🔎 MARKET ALPHA <span class="nav-count" id="count-alpha">0</span></div>
+                    <div class="nav-item" data-filter="rapid-results">⚡ RAPID RESULTS <span class="nav-count" id="count-rapid">0</span></div>
+                    <div class="nav-item" data-filter="success-docs">🏆 SUCCESS DOCS <span class="nav-count" id="count-docs">0</span></div>
                 </nav>
             </div>
             
@@ -175,37 +180,39 @@ const PROXIES = [
   url => `https://yproxy.io/proxy/${url}`,
   url => `https://serverless-cors-proxy.vercel.app/api/proxy?url=${encodeURIComponent(url)}`
 ];
-
 const SOURCES = [
-  // 🤖 AI AGENCY & SCALE (Scaling Playbooks & Profit)
-  { name: 'AI Agency Scaling Lab', url: 'https://news.google.com/rss/search?q=when:7D+"Scale+AI+Agency"+OR+"AI+Sales+Automation"+OR+"Agentic+Breakthrough"&hl=en-US&gl=US&ceid=US:en', label: 'PLAYBOOK', cat: 'ai-scale' },
-  { name: 'The Decoder (Elite AI)', url: 'https://the-decoder.com/feed/', label: 'AI INTEL', cat: 'ai-scale' },
-  { name: 'AI Business Scale Radar', url: 'https://news.google.com/rss/search?q=when:7D+AI+startup+agency+scaling+revenue+playbook&hl=en-US&gl=US&ceid=US:en', label: 'AGENCY', cat: 'ai-scale' },
-  { name: 'AI Breakthroughs (Deep)', url: 'https://news.google.com/rss/search?q=when:7D+source:Technology_Review+AI+breakthrough&hl=en-US&gl=US&ceid=US:en', label: 'KNOWLEDGE', cat: 'ai-scale' },
-  { name: 'Emergent AI Logic (Res)', url: 'https://news.google.com/rss/search?q=when:30D+source:ArXiv+AI+Agent+Scaling+Law&hl=en-US&gl=US&ceid=US:en', label: 'RESEARCH', cat: 'ai-scale' },
-  { name: 'VentureBeat AI Growth', url: 'https://venturebeat.com/category/ai/feed/', label: 'GROWTH', cat: 'ai-scale' },
-  
-  // 🚀 EMPIRE BUILDING (Market Booms & Opportunities)
-  { name: 'Profitable Niche Hunter', url: 'https://news.google.com/rss/search?q=when:30D+"profitable+niche"+OR+"market+opportunity"+OR+"booming+product"+successful+launch&hl=en-US&gl=US&ceid=US:en', label: 'BOOM', cat: 'biz-scaling' },
-  { name: 'Market Insight Radar', url: 'https://news.google.com/rss/search?q=when:7D+"what+people+are+looking+for"+market+trends+growth&hl=en-US&gl=US&ceid=US:en', label: 'INSIGHT', cat: 'biz-scaling' },
-  { name: 'Sequoia Capital Strategy', url: 'https://news.google.com/rss/search?q=when:30D+Sequoia+Capital+Scaling+Startup+Advice&hl=en-US&gl=US&ceid=US:en', label: 'EQUITY', cat: 'biz-scaling' },
-  { name: 'Venture Capital Trends', url: 'https://news.google.com/rss/search?q=when:7D+VC+Funding+Trends+AI+Market+Opportunity&hl=en-US&gl=US&ceid=US:en', label: 'VENTURE', cat: 'biz-scaling' },
-  { name: 'Entrepreneur Latest', url: 'https://www.entrepreneur.com/latest.rss', label: 'LAUNCH', cat: 'biz-scaling' },
-  
-  // 🧠 POWER & MINDSET (History & Psychological Dominance)
-  { name: 'Strategic Influence Radar', url: 'https://news.google.com/rss/search?q=when:30D+"Robert+Greene"+OR+"Influence"+OR+"Manipulation"+Psychology&hl=en-US&gl=US&ceid=US:en', label: 'POWER', cat: 'mindset' },
-  { name: 'Elite History Lessons', url: 'https://news.google.com/rss/search?q=when:30D+"history+lessons"+powerful+kings+warriors+winning&hl=en-US&gl=US&ceid=US:en', label: 'HISTORY', cat: 'mindset' },
-  { name: 'High-Performance Mind', url: 'https://fs.blog/feed/', label: 'STRATEGY', cat: 'mindset' },
-  { name: 'The Stoic Warrior', url: 'https://news.google.com/rss/search?q=when:30D+source:Daily_Stoic+OR+source:Ryan_Holiday+Elite+Mindset&hl=en-US&gl=US&ceid=US:en', label: 'LEGACY', cat: 'mindset' },
-  { name: 'Dark Psychology Mastery', url: 'https://news.google.com/rss/search?q=when:30D+"Social+Engineering"+OR+"Machiavellian"+Control&hl=en-US&gl=US&ceid=US:en', label: 'DOMINANCE', cat: 'mindset' },
-  { name: 'Ancient Wisdom Radar', url: 'https://news.google.com/rss/search?q=when:30D+"Sun+Tzu"+OR+"Marcus+Aurelius"+OR+"Seneca"+Lessons&hl=en-US&gl=US&ceid=US:en', label: 'ANCIENT', cat: 'mindset' },
-  
-  // 🛠️ THE TOOL BOX (First to Know: AI & Biz Tools)
-  { name: 'AI Tool Mastery Radar', url: 'https://news.google.com/rss/search?q=when:7D+NEW+best+AI+tools+Launch+Master+Tutorial&hl=en-US&gl=US&ceid=US:en', label: 'FIRST KNOW', cat: 'ai-toolbox' },
-  { name: 'AI Tool Hunt (Live PH)', url: 'https://news.google.com/rss/search?q=when:1D+source:Product_Hunt+AI+Tool+Launch&hl=en-US&gl=US&ceid=US:en', label: 'SaaS SNIPER', cat: 'ai-toolbox' },
-  { name: 'Exploding Topics (Live)', url: 'https://news.google.com/rss/search?q=when:7D+trending+products+consumer+market+growth&hl=en-US&gl=US&ceid=US:en', label: 'EXPLODING', cat: 'ai-toolbox' },
-  { name: 'Advanced AI Automation', url: 'https://news.google.com/rss/search?q=when:1D+AI+agent+automation+workflow+scale&hl=en-US&gl=US&ceid=US:en', label: 'AUTOMATION', cat: 'ai-toolbox' },
-  { name: 'Product Hunt Mastery', url: 'https://www.producthunt.com/feed', label: 'GLOBAL SNIPER', cat: 'ai-toolbox' }
+  // 🛠️ AI ARSENAL
+  { name: 'AI Tool Scout', url: 'https://news.google.com/rss/search?q=when:7D+new+AI+tools+underrated+AI+trending+AI&hl=en-US&gl=US&ceid=US:en', label: 'RADAR', cat: 'ai-arsenal' },
+  { name: 'Product Hunt AI', url: 'https://www.producthunt.com/feed', label: 'LAUNCH', cat: 'ai-arsenal' },
+  { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/', label: 'VB INTEL', cat: 'ai-arsenal' },
+  { name: 'Reddit AI Intel', url: 'https://www.reddit.com/r/ArtificialInteligence/search.rss?q=new+tools+underrated&sort=new&t=week', label: 'REDDIT', cat: 'ai-arsenal' },
+
+  // 🚀 SAAS HUB
+  { name: 'SaaStr Editorial', url: 'https://www.saastr.com/feed/', label: 'SAASTR', cat: 'saas-hub' },
+  { name: 'ProfitWell Strategy', url: 'https://www.profitwell.com/recur/rss.xml', label: 'PROFITWELL', cat: 'saas-hub' },
+  { name: 'Indie Hackers SaaS', url: 'https://www.indiehackers.com/feed/rss?types=post&groups=saas', label: 'INDIE', cat: 'saas-hub' },
+
+  // 💡 MONEY CONCEPTS
+  { name: 'Entrepreneur Biz', url: 'https://www.entrepreneur.com/rss/entrepreneurship.rss', label: 'ENTREPRENEUR', cat: 'money-concepts' },
+  { name: 'Indie Hackers Profit', url: 'https://www.indiehackers.com/feed/rss?types=post&groups=monetization', label: 'MODELS', cat: 'money-concepts' },
+  { name: 'Forbes Empire', url: 'https://www.forbes.com/business/feed/', label: 'FORBES', cat: 'money-concepts' },
+
+  // 🏢 AGENCY GOLD
+  { name: 'Agency Service Wire', url: 'https://news.google.com/rss/search?q=when:7D+AI+agency+services+businesses+paying&hl=en-US&gl=US&ceid=US:en', label: 'GOLDMINE', cat: 'agency-gold' },
+  { name: 'DIW Business Trends', url: 'https://www.digitalinformationworld.com/rss.xml', label: 'DIW', cat: 'agency-gold' },
+
+  // 🔎 MARKET ALPHA
+  { name: 'Hacker News Alpha', url: 'https://hnrss.org/frontpage?q=AI+OR+SaaS+OR+Gap', label: 'HN ALPHA', cat: 'market-alpha' },
+  { name: 'MIT Tech Review', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed/', label: 'MIT', cat: 'market-alpha' },
+  { name: 'WIRED AI', url: 'https://www.wired.com/feed/category/ideas/latest/rss', label: 'WIRED', cat: 'market-alpha' },
+
+  // ⚡ RAPID RESULTS
+  { name: 'Fast Revenue Desk', url: 'https://news.google.com/rss/search?q=when:7D+generate+revenue+quickly+AI&hl=en-US&gl=US&ceid=US:en', label: 'FAST REV', cat: 'rapid-results' },
+  { name: 'SideHustle Intel', url: 'https://www.reddit.com/r/sidehustle/search.rss?q=AI+automation&sort=new&t=week', label: 'SIDEHUSTLE', cat: 'rapid-results' },
+
+  // 🏆 SUCCESS DOCS
+  { name: 'TechCrunch Startups', url: 'https://techcrunch.com/category/artificial-intelligence/feed/', label: 'TC INTEL', cat: 'success-docs' },
+  { name: 'BI Strategy', url: 'https://www.businessinsider.com/rss/strategy', label: 'INSIDER', cat: 'success-docs' }
 ];
 
 const POWER_LAWS = [
@@ -213,21 +220,25 @@ const POWER_LAWS = [
   "Guard your reputation with your life.", "Court attention at all cost.", "Win through actions, never through argument.",
   "Keep people dependent on you.", "Avoid the unhappy and unlucky.", "Use selective honesty to disarm your victim.",
   "Master the art of timing.", "Strive to be different, but blend in with others.", "Never commit to anyone.",
-  "Thinking outside the box is the only way to scale an empire.",
-  "Speed is the ultimate advantage in a product market.",
-  "The goal is not to be the best. The goal is to be the only.",
-  "Complexity is your enemy. Any fool can make something complicated. It is hard to keep things simple.",
-  "Work for one hour a day on your empire, and in one year you will be unrecognizable.",
+  "The best AI business is the one that solves a boring, high-cost problem.",
+  "Trends are for the masses. Alpha is found in the market gaps before they become mainstream.",
+  "Revenue is the only valid validation for a SaaS idea.",
+  "Speed is the ultimate advantage. If you aren't first, be the only.",
+  "Automation is not just about efficiency; it's about decoupling time from income.",
+  "High-demand agency services are built on results, not promises.",
   "A million seconds is 12 days. A billion seconds is 31 years. Protect your time.",
+  "Complexity is the enemy of execution. Keep your AI systems lean and lethal.",
+  "The goal is not to be the best. The goal is to be the only.",
+  "Focus on underserved niches; the competition is too busy fighting for the mainstream.",
   "Antifragility is beyond resilience or robustness. The resilient resists shocks. The antifragile gets better.",
-  "If you want to be successful, you must be willing to be misunderstood for a long period of time.",
+  "Successful companies don't just use AI; they restructure their entire workflow around it.",
   "The happiness of your life depends upon the quality of your thoughts.",
   "Focus on the process, and the outcome will take care of itself."
 ];
 
 let allIntel = [];
 try {
-  const saved = localStorage.getItem('ELITE_ARCHIVE');
+  const saved = localStorage.getItem('ELITE_ARCHIVE_V3');
   if (saved) allIntel = JSON.parse(saved);
 } catch(e) {}
 
@@ -237,26 +248,8 @@ async function fetchWithProxy(url) {
   const shuffled = [...PROXIES].sort(() => Math.random() - 0.5);
   for (const proxyFn of shuffled) {
     try {
-      const liveUrl = `${url}${url.includes('?') ? '&' : '?'}cache=${Date.now()}`;
-      const res = await fetch(proxyFn(liveUrl), { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) continue;
-      const text = await res.text();
-      // Handle AllOrigins
-      if (text.trim().startsWith('{')) {
-        try { const json = JSON.parse(text); if (json.contents) return json.contents; } catch(e){}
-      }
-      if (text && text.length > 500) return text;
-    } catch(e) {}
-  }
-  return null;
-}
-
-async function fetchWithProxy(url) {
-  const shuffled = [...PROXIES].sort(() => Math.random() - 0.5);
-  for (const proxyFn of shuffled) {
-    try {
-      const liveUrl = `${url}${url.includes('?') ? '&' : '?'}v_elite_cache=${Date.now()}`;
-      const res = await fetch(proxyFn(liveUrl), { signal: AbortSignal.timeout(6000) });
+      const liveUrl = url + (url.includes('?') ? '&' : '?') + 'cache=' + Math.random();
+      const res = await fetch(proxyFn(liveUrl), { signal: AbortSignal.timeout(10000) });
       if (!res.ok) continue;
       const text = await res.text();
       // Handle AllOrigins
@@ -302,10 +295,20 @@ async function loadAllFeeds() {
   for (let s of SOURCES) {
     const dot = document.getElementById(`dot-${s.label}`);
     try {
+      if (dot) dot.className = 'sat-dot gray';
       await new Promise(r => setTimeout(r, 200 + Math.random() * 200));
-      const items = await fetchFeed(s);
       
-      // UNIQUE INJECTION: Only add articles we don't already have
+      let items = [];
+      try {
+        items = await fetchFeed(s);
+      } catch(e) {
+        // RETRY PROTOCOL: If first attempt fails, retry once with yellow dot
+        if (dot) dot.className = 'sat-dot yellow';
+        await new Promise(r => setTimeout(r, 1000));
+        items = await fetchFeed(s);
+      }
+      
+      // UNIQUE INJECTION
       items.forEach(item => {
         const exists = allIntel.some(existing => existing.link === item.link || (existing.title === item.title && existing.source === item.source));
         if (!exists) {
@@ -318,12 +321,20 @@ async function loadAllFeeds() {
       });
       // PERMANENT PERSISTENCE
       if (allIntel.length > 2000) allIntel = allIntel.slice(0, 2000);
-      localStorage.setItem('ELITE_ARCHIVE', JSON.stringify(allIntel));
+      localStorage.setItem('ELITE_ARCHIVE_V3', JSON.stringify(allIntel));
       if (dot) dot.className = 'sat-dot green';
+      
+      // INCREMENTAL RENDER: Show articles as they arrive
+      if (allIntel.length > 0) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('newsGrid').style.display = 'grid';
+        render();
+        updateMeta();
+      }
     } catch(e) {
       if (dot) dot.className = 'sat-dot red';
     }
-    document.getElementById('ticker').innerHTML = `● Establishing connection: ${s.name}... Active background scan...`;
+    document.getElementById('ticker').innerHTML = `● Sweeping: ${s.name}... Total Captured: ${allIntel.length}`;
   }
 
   // Final Sort & Render
@@ -339,10 +350,13 @@ async function loadAllFeeds() {
 function scoreArticle(item, defaultCat) {
   const content = (item.title + ' ' + item.desc).toLowerCase();
   const SILOS = {
-    'ai-scale': ['ai agency','openai','llm','gpt','anthropic','claude','scaling ai','automate agency','prompt engineering','model training','agentic','autonomous agent','high ticket','deepmind','nlp','successful ai','industry news','scale playbook','agency success','startup success'],
-    'biz-scaling': ['scaling','revenue','series a','venture capital','entrepreneur','biz build','exit strategy','m&a','sales process','founder','venture debt','ipo','valuation','growth marketing','funding','startup','market fit','profitable niche','launch','built to last','boom','opportunity','trending product','market gap','vc trend','profitable business'],
-    'mindset': ['stoic','stoicism','marcus aurelius','mindset','power law','psychology','perform','strategy','power dynamic','philosophy','antifragile','skin in the game','taleb','nietzsche','discipline','zen','high performance','control','manipulate','influence','machiavelli','leadership','social dynamics','history lesson','king','conqueror','empire','winning strategy','ancient','gladiator','power dynamics'],
-    'ai-toolbox': ['best ai tools','new tool','saas launch','directory','plugin','extension','workflow','productivity tool','automation workflow','zapier','make.com','viral product','software','app','platform','utility','toolbox','library','resource','master','tutorial','benchmark','first to know','latest tool','product hunt','free tools']
+    'ai-arsenal': ['ai tool','underrated','new tool','trending ai','automation system','replace human','agent','workflow','bot','product hunt','venturebeat'],
+    'saas-hub': ['saas idea','strong demand','software as a service','b2b saas','micro saas','ai saas','saastr','profitwell'],
+    'money-concepts': ['business idea','high-demand','scalable','business model','working model','revenue stream','entrepreneur','forbes'],
+    'agency-gold': ['agency service','actively paying for','ai agency','b2b service','client retention','high-ticket','diw'],
+    'market-alpha': ['market gap','underserved','trend','emerging','before mainstream','opportunity','alpha','mit','wired','hacker news'],
+    'rapid-results': ['generate revenue quickly','fast to execute','quick cash','rapid execution','low hanging fruit','side hustle'],
+    'success-docs': ['case study','breakdown','company succeeding','how they','lesson','blueprint','success story','techcrunch','insider']
   };
 
   for (let [cat, keys] of Object.entries(SILOS)) {
@@ -361,9 +375,9 @@ function render() {
     <article class="card" onclick="window.open('${i.link}')">
       <div class="card-header" style="background:${getCatColor(i.cat)}"></div>
       <div class="card-content">
-        <div class="card-meta"><span>${i.label}</span><span>${new Date(i.date).toLocaleDateString()}</span></div>
+        <div class="card-meta"><span>SIGNAL: ${i.label}</span><span>${new Date(i.date).toLocaleDateString()}</span></div>
         <h3 class="card-title">${i.title}</h3>
-        <p class="card-desc">${i.desc}</p>
+        <p class="card-desc">${i.desc || 'Analyzing strategic dispatch...'}</p>
       </div>
     </article>
   `).join('');
@@ -372,20 +386,26 @@ function render() {
 
 function getCatColor(cat) {
   switch(cat) {
-    case 'ai-scale': return 'var(--ai-blue)';
-    case 'biz-scaling': return 'var(--biz-green)';
-    case 'mindset': return 'var(--gold)';
-    case 'ai-toolbox': return 'var(--power-red)';
+    case 'ai-arsenal': return 'var(--ai-blue)';
+    case 'saas-hub': return '#8b5cf6';
+    case 'money-concepts': return 'var(--biz-green)';
+    case 'agency-gold': return '#f59e0b';
+    case 'market-alpha': return '#0abfbc';
+    case 'rapid-results': return 'var(--power-red)';
+    case 'success-docs': return 'var(--gold-dark)';
     default: return 'var(--gold)';
   }
 }
 
 function updateMeta() {
   document.getElementById('count-all').innerText = allIntel.length;
-  document.getElementById('count-ai').innerText = allIntel.filter(i => i.cat === 'ai-scale').length;
-  document.getElementById('count-biz').innerText = allIntel.filter(i => i.cat === 'biz-scaling').length;
-  document.getElementById('count-mind').innerText = allIntel.filter(i => i.cat === 'mindset').length;
-  document.getElementById('count-tools').innerText = allIntel.filter(i => i.cat === 'ai-toolbox').length;
+  document.getElementById('count-arsenal').innerText = allIntel.filter(i => i.cat === 'ai-arsenal').length;
+  document.getElementById('count-saas').innerText = allIntel.filter(i => i.cat === 'saas-hub').length;
+  document.getElementById('count-money').innerText = allIntel.filter(i => i.cat === 'money-concepts').length;
+  document.getElementById('count-agency').innerText = allIntel.filter(i => i.cat === 'agency-gold').length;
+  document.getElementById('count-alpha').innerText = allIntel.filter(i => i.cat === 'market-alpha').length;
+  document.getElementById('count-rapid').innerText = allIntel.filter(i => i.cat === 'rapid-results').length;
+  document.getElementById('count-docs').innerText = allIntel.filter(i => i.cat === 'success-docs').length;
   document.getElementById('dailyLaw').innerText = POWER_LAWS[Math.floor(Math.random()*POWER_LAWS.length)];
 }
 

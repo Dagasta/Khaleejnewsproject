@@ -5,6 +5,10 @@
 
 'use strict';
 
+// ── PLAN GATING (initialized after auth guard in index.html) ──
+function getPlan() { return window.__khansaaPlan || { limits:{ hasSearch:true,hasFilters:true,hasMarkets:true,arabicRewrites:Infinity,articlesPerDay:Infinity } }; }
+function getUser() { return window.__khansaaUser || null; }
+
 // ── CONFIG ──────────────────────────────────────────────────
 // Multiple CORS proxies — tried in order; falls back if one is down
 const PROXIES = [
@@ -18,7 +22,7 @@ const PROXIES = [
   url => `https://serverless-cors-proxy.vercel.app/api/proxy?url=${encodeURIComponent(url)}`
 ];
 
-const REFRESH_MS = 5 * 60 * 1000;
+const REFRESH_MS = 2 * 60 * 1000; // 2-Minute High-Frequency Pulse (Market Standard)
 
 // ✅ COMPREHENSIVE OFFICIAL & TRUSTED SOURCES
 const SOURCES = [
@@ -61,10 +65,13 @@ const SOURCES = [
   { name: 'Associated Press (AP)',   url: 'https://news.google.com/rss/search?q=when:24h+breaking+news&hl=en-US&gl=US&ceid=US:en', label: 'AP', cat: 'global' },
   { name: 'BBC Global News',         url: 'https://feeds.bbci.co.uk/news/rss.xml',     label: 'BBC', cat: 'global' },
 
-  // 🏆 EXTRA RANKINGS (To fill the vacant tab)
-  { name: 'Dubai Global Ranking Radar', url: 'https://news.google.com/rss/search?q=when:7d+Dubai+ranked+globally+index+report&hl=en-US&gl=US&ceid=US:en', label: 'RANK', cat: 'rankings' },
-  { name: 'UAE Achievement Wire',    url: 'https://news.google.com/rss/search?q=when:7d+UAE+ranked+first+award+achievement&hl=en-US&gl=US&ceid=US:en', label: 'AWARD', cat: 'rankings' },
-  { name: 'Dubai Hub Index',         url: 'https://news.google.com/rss/search?q=when:7d+Dubai+global+hub+index+leader&hl=en-US&gl=US&ceid=US:en', label: 'LEADER', cat: 'rankings' }
+  // 🏆 EXTRA RANKINGS (Achievement Saturation)
+  { name: 'Dubai Merit Radar',       url: 'https://news.google.com/rss/search?q=when:7d+Dubai+merit+award+ranked+first&hl=en-AE&gl=AE&ceid=AE:en', label: 'AWARD', cat: 'rankings' },
+  { name: 'UAE Safety & Prosperity', url: 'https://news.google.com/rss/search?q=when:30D+UAE+ranked+safest+most+prosperous&hl=en-US&gl=US&ceid=US:en', label: 'RANK', cat: 'rankings' },
+
+  // 💰 EXTRA MARKETS (Gold/Crypto Analytics)
+  { name: 'Gold Pulse Predictor',    url: 'https://news.google.com/rss/search?q=when:24h+gold+price+forecast+XAU+analysis&hl=en-US&gl=US&ceid=US:en', label: 'XAU Analyz', cat: 'markets' },
+  { name: 'Crypto Whale Alerts',     url: 'https://news.google.com/rss/search?q=when:24h+bitcoin+price+move+prediction&hl=en-US&gl=US&ceid=US:en', label: 'Crypto', cat: 'markets' }
 ];
 
 // ── KEYWORD SCORING ──────────────────────────────────────────
@@ -208,8 +215,8 @@ function scoreArticle(item, defaultCat) {
     'uae': ['uae','dubai','abu dhabi','sharjah','emirate','government','golden visa','sheikh','emaar','nakheel','adnoc',' gold souq','etisalat'],
     'economy': ['economy','economic','gdp','inflation','business','merger','acquisition','ipo','startup','venture','mubadala','growth','zawya','arabian business','fitch','moody'],
     'politics': ['political','diplomacy','summit', 'gcc','gulf cooperation council','saudi','qatar','kuwait','oman','bahrain','war','conflict','regional stability'],
-    'rankings': ['ranking','ranked','global ranking','index','top 10','top 5','competitiveness','innovation','happiness',' паспорт','henley','achievement','award','leader','leading','success','best city'],
-    'markets': ['gold','xau','precious metal','bullion','spot price','jewellery', 'bitcoin','btc','crypto','cryptocurrency','blockchain','ethereum','eth','token','investing.com','kitco']
+    'rankings': ['ranking','ranked','global ranking','index','top 10','top 5','competitiveness','innovation','happiness',' паспорт','henley','achievement','award','leader','leading','success','best city','safety','world best','prosperity index'],
+    'markets': ['gold','xau','precious metal','bullion','spot price','jewellery', 'bitcoin','btc','crypto','cryptocurrency','blockchain','ethereum','eth','token','investing.com','kitco','forecast','prediction','analyz','souq price'],
   };
 
   let category = defaultCat || 'global';
@@ -491,8 +498,8 @@ function applyFiltersAndRender() {
     // Global & UAE Politics (Worldwide)
     filtered = filtered.filter(a => a.category === 'politics');
   } else if (activeFilter === 'rankings') {
-    // UAE Global Rankings (Achievements only)
-    filtered = filtered.filter(a => a.category === 'rankings' || a.sourceLabel === 'Credit');
+    // UAE Global Rankings (Achievements ONLY)
+    filtered = filtered.filter(a => (a.category === 'rankings' || a.sourceLabel === 'Credit') && a.isUAE);
   } else if (activeFilter === 'markets') {
     // Gold & Crypto (Analytic predicting)
     filtered = filtered.filter(a => a.category === 'markets');
@@ -501,9 +508,21 @@ function applyFiltersAndRender() {
   }
 
   if (activePriority !== 'all') filtered = filtered.filter(a => a.priority === activePriority);
+
+  // ── Subscription: search gating
+  const plan = getPlan();
   if (searchQuery) {
+    if (!plan.limits.hasSearch) {
+      showUpgradePrompt('search');
+      return;
+    }
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
+  }
+
+  // ── Subscription: articles per day cap
+  if (plan.limits.articlesPerDay !== Infinity) {
+    filtered = filtered.slice(0, plan.limits.articlesPerDay);
   }
 
   // Update counts (Universal Match Logic — MUST MATCH GRID FILTERS)
@@ -511,7 +530,7 @@ function applyFiltersAndRender() {
   document.getElementById('count-uae').textContent      = allArticles.filter(a => a.isUAE).length;
   document.getElementById('count-economy').textContent  = allArticles.filter(a => a.category === 'economy' && a.isUAE).length;
   document.getElementById('count-politics').textContent = allArticles.filter(a => a.category === 'politics').length;
-  document.getElementById('count-rankings').textContent = allArticles.filter(a => a.category === 'rankings' || a.sourceLabel === 'Credit').length;
+  document.getElementById('count-rankings').textContent = allArticles.filter(a => (a.category === 'rankings' || a.sourceLabel === 'Credit') && a.isUAE).length;
   document.getElementById('count-markets').textContent  = allArticles.filter(a => a.category === 'markets').length;
 
   // Section title
@@ -1005,3 +1024,112 @@ saveToStorage();
 loadAllFeeds(true); // Initial load with spinner
 setInterval(() => loadAllFeeds(false), 2 * 60 * 1000); // 2-Minute Market Pulse (Shadow Scan)
 updateEngineDisplay();
+
+// ── SUBSCRIPTION GATING — applied after page loads ───────────
+(function applyPlanGating() {
+  const plan = getPlan();
+
+  // Lock search input for free users
+  if (!plan.limits.hasSearch) {
+    const si = document.getElementById('searchInput');
+    if (si) {
+      si.placeholder = '🔒 Search — Upgrade to Pro';
+      si.classList.add('locked-input');
+      si.addEventListener('focus', () => showUpgradePrompt('search'), { once: true });
+    }
+  }
+
+  // Lock filters for free users (keep All + UAE only)
+  if (!plan.limits.hasFilters) {
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      const f = btn.dataset.filter;
+      if (!['all','uae'].includes(f)) {
+        btn.classList.add('locked-filter');
+        btn.addEventListener('click', e => { e.stopPropagation(); showUpgradePrompt('filters'); }, true);
+      }
+    });
+    // Lock markets filter
+    document.querySelectorAll('[data-filter="markets"]').forEach(btn => {
+      btn.title = '🔒 Available on Pro plan';
+    });
+  }
+
+  // Lock markets category for free
+  if (!plan.limits.hasMarkets) {
+    const mBtn = document.querySelector('[data-filter="markets"]');
+    if (mBtn) {
+      mBtn.classList.add('locked-filter');
+      mBtn.addEventListener('click', e => { e.stopPropagation(); showUpgradePrompt('markets'); }, true);
+    }
+  }
+
+  // Apply rewrite limit tracking
+  const user = getUser();
+  if (user && plan.limits.arabicRewrites !== Infinity) {
+    const remainingLabel = document.getElementById('engineLabel');
+    const today = new Date().toISOString().slice(0,10);
+    const usedToday = (user.usageToday && user.usageToday.date === today) ? user.usageToday.rewrites : 0;
+    const left = Math.max(0, plan.limits.arabicRewrites - usedToday);
+    if (remainingLabel) {
+      const orig = remainingLabel.textContent;
+      remainingLabel.textContent = orig + ` (${left} rewrites left today)`;
+    }
+  }
+})();
+
+// ── Upgrade prompt helper ─────────────────────────────────────
+function showUpgradePrompt(feature) {
+  const msgs = {
+    search: 'Advanced Search is available on the Pro plan.',
+    filters: 'Advanced topic filters are available on the Pro plan.',
+    markets: 'Gold & Crypto market analysis is available on the Pro plan.',
+    rewrites: 'You have used all your Arabic rewrites for today. Upgrade to Pro for 50/day.'
+  };
+  const msg = msgs[feature] || 'This feature requires a Pro subscription.';
+  const existing = document.getElementById('khansaa-upgrade-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'khansaa-upgrade-toast';
+  toast.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;
+      background:#131d30;border:1px solid rgba(245,158,11,0.35);border-radius:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);max-width:360px;
+      position:fixed;bottom:28px;right:28px;z-index:9999;
+      animation:slide-up 0.3s cubic-bezier(0.34,1.56,0.64,1)">
+      <span style="font-size:22px">⭐</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#f0f4ff;margin-bottom:4px">${msg}</div>
+        <a href="plans.html" style="font-size:12px;color:#1a6cf6;font-weight:600;text-decoration:none">View Plans →</a>
+      </div>
+      <button onclick="this.closest('#khansaa-upgrade-toast').remove()" style="background:none;border:none;color:#4a5568;cursor:pointer;font-size:16px;margin-left:8px">✕</button>
+    </div>`;
+  document.body.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 6000);
+}
+
+// ── Intercept Arabic rewrite to check limit ───────────────────
+const _origDoRewrite = doRewrite;
+// Wrap rewrite with quota check
+const _wrappedRewrite = async function(text, format, tone, targetEl, metaEl, wcEl) {
+  const user = getUser();
+  if (user && !window.KhansaaAuth.canRewrite(user)) {
+    showUpgradePrompt('rewrites');
+    throw new Error('QUOTA_EXCEEDED');
+  }
+  const result = await _origDoRewrite(text, format, tone, targetEl, metaEl, wcEl);
+  if (user) window.KhansaaAuth.trackRewrite(user.email);
+  return result;
+};
+// Replace global reference used by studio
+window.doRewrite = _wrappedRewrite;
+
+// ── Locked filter style ───────────────────────────────────────
+(function addLockedFilterStyle() {
+  const s = document.createElement('style');
+  s.textContent = `
+    .locked-filter{opacity:0.45;cursor:not-allowed !important;position:relative}
+    .locked-filter::after{content:'🔒';margin-left:auto;font-size:11px}
+    .locked-input{opacity:0.6;cursor:not-allowed}
+  `;
+  document.head.appendChild(s);
+})();

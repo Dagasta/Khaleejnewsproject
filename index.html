@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
 </head>
 <body>
   <!-- HEADER -->
@@ -51,9 +54,36 @@
           </svg>
           Refresh
         </button>
+        <!-- User Menu -->
+        <div class="user-menu" id="userMenu">
+          <button class="user-avatar-btn" id="userAvatarBtn" onclick="toggleUserMenu()">
+            <span class="user-avatar" id="userAvatarInitial">?</span>
+            <span class="user-plan-badge" id="userPlanBadge">Free</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="ud-info">
+              <div class="ud-name" id="udName">User</div>
+              <div class="ud-email" id="udEmail">—</div>
+              <div class="ud-plan" id="udPlan">Free Plan</div>
+            </div>
+            <div class="ud-divider"></div>
+            <a href="plans.html" class="ud-item">⭐ Upgrade Plan</a>
+            <a href="THE_ELITE_RADAR.html" class="ud-item" id="eliteRadarLink">⚡ Elite Radar</a>
+            <div class="ud-divider"></div>
+            <button class="ud-item ud-signout" onclick="window.KhansaaAuth.signOut()">Sign Out</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
+
+  <!-- TRIAL / UPGRADE BANNER -->
+  <div class="upgrade-banner" id="upgradeBanner" style="display:none">
+    <span id="upgradeBannerText">⭐ You're on the Free plan.</span>
+    <a href="plans.html" class="upgrade-banner-btn">Upgrade to Pro →</a>
+    <button class="upgrade-banner-close" onclick="document.getElementById('upgradeBanner').style.display='none'">✕</button>
+  </div>
 
   <!-- PRIORITY TICKER -->
   <div class="ticker-wrapper">
@@ -410,5 +440,50 @@ The system will rewrite it as professional UAE Arabic editorial content."
   </div>
 
   <script src="app.js"></script>
+  <script>
+    // ── Async Auth guard & user menu (Supabase) ───────────────
+    (async function() {
+      const user = await window.KhansaaAuth.requireAuth();
+      if (!user) return;
+      const plan = window.KhansaaAuth.getUserPlan(user);
+
+      document.getElementById('userAvatarInitial').textContent = (user.name || user.email || 'U')[0].toUpperCase();
+      document.getElementById('udName').textContent = user.name || '—';
+      document.getElementById('udEmail').textContent = user.email;
+      document.getElementById('udPlan').textContent = plan.isTrial ? 'Pro (Trial)' : (plan.name + ' Plan');
+      document.getElementById('userPlanBadge').textContent = plan.isTrial ? 'TRIAL' : plan.name.toUpperCase();
+      document.getElementById('userPlanBadge').className = 'user-plan-badge plan-' + (plan.isTrial ? 'trial' : plan.id);
+
+      if (!plan.limits.hasEliteRadar) {
+        const el = document.getElementById('eliteRadarLink');
+        el.href = 'plans.html';
+        el.textContent = '🔒 Elite Radar (Upgrade)';
+      }
+
+      if (user.plan === 'free' && !plan.isTrial) {
+        document.getElementById('upgradeBanner').style.display = 'flex';
+        document.getElementById('upgradeBannerText').textContent = '⭐ You are on the Free plan — unlock all features with Pro.';
+      } else if (plan.isTrial) {
+        const daysLeft = Math.ceil((plan.trialEndsAt - Date.now()) / 86400000);
+        document.getElementById('upgradeBanner').style.display = 'flex';
+        document.getElementById('upgradeBannerText').textContent = `⏳ Pro Trial: ${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining.`;
+        document.getElementById('upgradeBanner').style.background = 'rgba(26,108,246,0.12)';
+        document.getElementById('upgradeBanner').style.borderBottom = '1px solid rgba(26,108,246,0.25)';
+        document.getElementById('upgradeBanner').style.color = '#7eb8ff';
+      }
+
+      window.__khansaaUser = user;
+      window.__khansaaPlan = plan;
+    })();
+
+    function toggleUserMenu() {
+      document.getElementById('userDropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', e => {
+      if (!document.getElementById('userMenu').contains(e.target)) {
+        document.getElementById('userDropdown').classList.remove('open');
+      }
+    });
+  </script>
 </body>
 </html>

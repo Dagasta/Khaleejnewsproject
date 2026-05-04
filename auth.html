@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<!-- خنساء Auth — Supabase Powered -->
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>خنساء | Sign In — Editorial Intelligence Platform</title>
+  <meta name="description" content="Sign in to خنساء — the professional editorial intelligence platform for UAE journalists and translators."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#090e1a;--surface:#0f1728;--card:#131d30;--card-h:#182238;
+      --border:rgba(255,255,255,0.07);--border-l:rgba(255,255,255,0.13);
+      --blue:#1a6cf6;--teal:#0abfbc;--gold:#f59e0b;--red:#ef4444;--green:#22c55e;--purple:#a855f7;
+      --t1:#f0f4ff;--t2:#8a99b8;--t3:#4a5568;
+      --r6:6px;--r12:12px;--r18:18px;
+      --ease:0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+    /* Background orbs */
+    .orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.18;animation:orb-float 12s ease-in-out infinite}
+    .orb1{width:500px;height:500px;background:radial-gradient(circle,#1a6cf6,transparent 70%);top:-100px;left:-100px;animation-delay:0s}
+    .orb2{width:400px;height:400px;background:radial-gradient(circle,#a855f7,transparent 70%);top:30%;right:-80px;animation-delay:-4s}
+    .orb3{width:350px;height:350px;background:radial-gradient(circle,#0abfbc,transparent 70%);bottom:-80px;left:30%;animation-delay:-8s}
+    @keyframes orb-float{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,-20px)}66%{transform:translate(-20px,30px)}}
+    /* Page layout */
+    .page{position:relative;z-index:1;flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+    .auth-wrap{width:100%;max-width:1040px;display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--card);border:1px solid var(--border-l);border-radius:var(--r18);overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(26,108,246,0.08)}
+    /* Left brand panel */
+    .brand-panel{background:linear-gradient(145deg,#0a1225 0%,#0f1d3a 50%,#080e1c 100%);padding:52px 44px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;border-right:1px solid var(--border)}
+    .brand-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(26,108,246,0.15),transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(10,191,188,0.1),transparent 60%);pointer-events:none}
+    .bp-logo{display:flex;align-items:center;gap:14px;position:relative}
+    .bp-icon{width:48px;height:48px;background:linear-gradient(135deg,#1a6cf6,#0abfbc);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 30px rgba(26,108,246,0.4)}
+    .bp-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--t1)}
+    .bp-tagline{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-top:2px}
+    .bp-headline{position:relative}
+    .bp-headline h2{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;line-height:1.35;color:var(--t1);margin-bottom:20px}
+    .bp-headline h2 span{color:var(--teal)}
+    .bp-headline p{font-size:14px;color:var(--t2);line-height:1.75}
+    .bp-features{display:flex;flex-direction:column;gap:12px;position:relative}
+    .bp-feat{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--t2)}
+    .bp-feat-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+    .bp-feat-dot.blue{background:rgba(26,108,246,0.18);border:1px solid rgba(26,108,246,0.3)}
+    .bp-feat-dot.teal{background:rgba(10,191,188,0.15);border:1px solid rgba(10,191,188,0.3)}
+    .bp-feat-dot.gold{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3)}
+    .bp-feat-dot.purple{background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3)}
+    .trial-badge{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.35);border-radius:99px;padding:8px 16px;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:0.5px}
+    /* Right form panel */
+    .form-panel{padding:52px 44px;display:flex;flex-direction:column;justify-content:center;gap:28px}
+    .tab-row{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--r6);padding:4px;gap:4px}
+    .tab-btn{flex:1;padding:9px;border:none;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;transition:var(--ease);font-family:inherit;background:transparent;color:var(--t2)}
+    .tab-btn.active{background:var(--card-h);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+    .form-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--t1);line-height:1.2}
+    .form-sub{font-size:13px;color:var(--t2);margin-top:4px}
+    .form-body{display:flex;flex-direction:column;gap:14px}
+    .field{display:flex;flex-direction:column;gap:5px}
+    .field label{font-size:12px;font-weight:600;color:var(--t2);letter-spacing:0.3px}
+    .field input{background:var(--surface);border:1px solid var(--border);border-radius:var(--r6);padding:11px 14px;color:var(--t1);font-size:14px;font-family:inherit;outline:none;transition:var(--ease)}
+    .field input:focus{border-color:rgba(26,108,246,0.55);box-shadow:0 0 0 3px rgba(26,108,246,0.1);background:var(--card)}
+    .field input::placeholder{color:var(--t3)}
+    .field input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,0.1)}
+    .plan-select-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .plan-opt{padding:10px 8px;border:1px solid var(--border);border-radius:var(--r6);cursor:pointer;text-align:center;transition:var(--ease);background:var(--surface)}
+    .plan-opt:hover{border-color:rgba(26,108,246,0.4);background:var(--card)}
+    .plan-opt.selected{border-color:var(--blue);background:rgba(26,108,246,0.1)}
+    .plan-opt .po-name{font-size:12px;font-weight:700;color:var(--t1)}
+    .plan-opt .po-price{font-size:11px;color:var(--t2);margin-top:2px}
+    .plan-opt .po-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:4px;padding:2px 6px;border-radius:99px}
+    .po-badge.free{background:rgba(34,197,94,0.15);color:var(--green)}
+    .po-badge.trial{background:rgba(245,158,11,0.15);color:var(--gold)}
+    .submit-btn{padding:13px;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;border-radius:var(--r6);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:var(--ease);font-family:inherit;position:relative;overflow:hidden}
+    .submit-btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background 0.2s}
+    .submit-btn:hover::after{background:rgba(255,255,255,0.07)}
+    .submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(26,108,246,0.4)}
+    .submit-btn:active{transform:none}
+    .submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+    .error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:var(--r6);padding:10px 14px;font-size:13px;color:#fca5a5;display:none}
+    .error-msg.show{display:block}
+    .success-msg{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:var(--r6);padding:10px 14px;font-size:13px;color:#86efac;display:none}
+    .success-msg.show{display:block}
+    .divider{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--t3)}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .forgot-link{font-size:12px;color:var(--blue);text-decoration:none;font-weight:500;margin-top:-6px;text-align:right}
+    .forgot-link:hover{text-decoration:underline}
+    .terms{font-size:11px;color:var(--t3);line-height:1.6;text-align:center}
+    .terms a{color:var(--blue);text-decoration:none}
+    /* Trial info bar */
+    .trial-bar{background:linear-gradient(90deg,rgba(245,158,11,0.1),rgba(10,191,188,0.06));border:1px solid rgba(245,158,11,0.2);border-radius:var(--r6);padding:10px 14px;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:8px}
+    /* Footer */
+    .page-footer{position:relative;z-index:1;text-align:center;padding:16px;font-size:12px;color:var(--t3)}
+    /* Loading spinner in button */
+    .btn-loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* Responsive */
+    @media(max-width:820px){
+      .auth-wrap{grid-template-columns:1fr}
+      .brand-panel{padding:36px 28px;border-right:none;border-bottom:1px solid var(--border)}
+      .bp-headline{display:none}
+      .form-panel{padding:36px 28px}
+    }
+    @media(max-width:480px){
+      .page{padding:16px}
+      .brand-panel{padding:24px 20px}
+      .form-panel{padding:24px 20px}
+      .plan-select-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="page">
+    <div class="auth-wrap">
+
+      <!-- ── LEFT BRAND PANEL ── -->
+      <div class="brand-panel">
+        <div class="bp-logo">
+          <div class="bp-icon">📰</div>
+          <div>
+            <div class="bp-name">خنساء</div>
+            <div class="bp-tagline">Editorial Intelligence</div>
+          </div>
+        </div>
+
+        <div class="bp-headline">
+          <h2>The <span>Professional Platform</span> for Arabic Editorial Work</h2>
+          <p>Live news intelligence, AI-powered Arabic rewriting, and editorial tools — built for UAE journalists and translation teams.</p>
+        </div>
+
+        <div class="bp-features">
+          <div class="bp-feat"><div class="bp-feat-dot blue">🌐</div>Live news from 25+ verified global sources</div>
+          <div class="bp-feat"><div class="bp-feat-dot purple">✍️</div>AI Arabic editorial rewriting via Gemini</div>
+          <div class="bp-feat"><div class="bp-feat-dot teal">📊</div>Real-time UAE, economy & rankings coverage</div>
+          <div class="bp-feat"><div class="bp-feat-dot gold">⚡</div>Breaking news ticker &amp; priority scoring</div>
+        </div>
+
+        <div class="trial-badge">⭐ 14-Day Pro Trial — Free, No Credit Card</div>
+      </div>
+
+      <!-- ── RIGHT FORM PANEL ── -->
+      <div class="form-panel">
+        <div class="tab-row">
+          <button class="tab-btn active" id="tabSignin" onclick="switchTab('signin')">Sign In</button>
+          <button class="tab-btn" id="tabSignup" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <!-- Sign In Form -->
+        <div id="signinSection">
+          <div class="form-title">Welcome back</div>
+          <div class="form-sub">Sign in to your editorial dashboard</div>
+          <div style="margin-top:20px" class="form-body">
+            <div class="field">
+              <label for="si-email">Email Address</label>
+              <input type="email" id="si-email" placeholder="you@newsroom.com" autocomplete="email"/>
+            </div>
+            <div class="field">
+              <label for="si-pass">Password</label>
+              <input type="password" id="si-pass" placeholder="••••••••" autocomplete="current-password"/>
+            </div>
+            <div id="si-error" class="error-msg"></div>
+            <button class="submit-btn" id="signinBtn" onclick="doSignIn()">
+              <span class="btn-loader" id="si-loader"></span>Sign In →
+            </button>
+            <p class="terms">Don't have an account? <a href="#" onclick="switchTab('signup');return false">Create one free →</a></p>
+          </div>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div id="signupSection" style="display:none">
+          <div class="form-title">Start for free</div>
+          <div class="form-sub">14-day Pro trial included — no card needed</div>
+          <div style="margin-top:16px" class="form-body">
+            <div class="trial-bar">⭐ Your first 14 days include full Pro access — automatically.</div>
+            <div class="field">
+              <label for="su-name">Full Name</label>
+              <input type="text" id="su-name" placeholder="Your name" autocomplete="name"/>
+            </div>
+            <div class="field">
+              <label for="su-email">Email Address</label>
+              <input type="email" id="su-email" placeholder="you@newsroom.com" autocomplete="email"/>
+            </div>
+            <div class="field">
+              <label for="su-pass">Password <span style="color:var(--t3);font-weight:400">(min 6 chars)</span></label>
+              <input type="password" id="su-pass" placeholder="••••••••" autocomplete="new-password"/>
+            </div>
+            <div id="su-error" class="error-msg"></div>
+            <div id="su-success" class="success-msg"></div>
+            <button class="submit-btn" id="signupBtn" onclick="doSignUp()">
+              <span class="btn-loader" id="su-loader"></span>Create Free Account →
+            </button>
+            <p class="terms">By signing up you agree to our <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">© 2026 خنساء Editorial Intelligence · Al Khaleej News</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    // Redirect if already logged in
+    window.KhansaaAuth.getCurrentUser().then(u => { if (u) window.location.href = 'index.html'; });
+
+    // Check for ?tab=signup in URL
+    if (location.search.includes('signup')) switchTab('signup');
+
+    function switchTab(tab) {
+      const isSignin = tab === 'signin';
+      document.getElementById('signinSection').style.display = isSignin ? '' : 'none';
+      document.getElementById('signupSection').style.display = isSignin ? 'none' : '';
+      document.getElementById('tabSignin').classList.toggle('active', isSignin);
+      document.getElementById('tabSignup').classList.toggle('active', !isSignin);
+    }
+
+    function setLoading(btn, loader, on) {
+      document.getElementById(btn).disabled = on;
+      document.getElementById(loader).style.display = on ? 'inline-block' : 'none';
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    async function doSignIn() {
+      const email = document.getElementById('si-email').value.trim();
+      const pass  = document.getElementById('si-pass').value;
+      if (!email || !pass) { showError('si-error','Please fill in all fields.'); return; }
+      setLoading('signinBtn','si-loader',true);
+      const res = await window.KhansaaAuth.signIn(email, pass);
+      setLoading('signinBtn','si-loader',false);
+      if (res.ok) { window.location.href = 'index.html'; }
+      else {
+        const msgs = { 'Invalid login credentials':'Incorrect email or password.', 'Email not confirmed':'Please confirm your email first.' };
+        showError('si-error', msgs[res.error] || res.error || 'Sign in failed.');
+      }
+    }
+
+    async function doSignUp() {
+      const name  = document.getElementById('su-name').value.trim();
+      const email = document.getElementById('su-email').value.trim();
+      const pass  = document.getElementById('su-pass').value;
+      if (!name || !email || !pass) { showError('su-error','Please fill in all fields.'); return; }
+      if (pass.length < 6) { showError('su-error','Password must be at least 6 characters.'); return; }
+      setLoading('signupBtn','su-loader',true);
+      const res = await window.KhansaaAuth.signUp(name, email, pass);
+      setLoading('signupBtn','su-loader',false);
+      if (res.ok) {
+        const s = document.getElementById('su-success');
+        s.textContent = '✓ Account created! Check your email to confirm, then sign in.';
+        s.classList.add('show');
+        setTimeout(() => switchTab('signin'), 2500);
+      } else {
+        const msgs = { 'User already registered':'An account with this email already exists.' };
+        showError('su-error', msgs[res.error] || res.error || 'Sign up failed.');
+      }
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const active = document.getElementById('signinSection').style.display !== 'none';
+        if (active) doSignIn(); else doSignUp();
+      }
+    });
+  </script>
+</body>
+</html>

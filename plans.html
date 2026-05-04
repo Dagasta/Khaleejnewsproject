@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>خنساء | Subscription Plans</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#090e1a;--surface:#0f1728;--card:#131d30;
+      --border:rgba(255,255,255,0.07);--border-l:rgba(255,255,255,0.13);
+      --blue:#1a6cf6;--teal:#0abfbc;--gold:#f59e0b;--red:#ef4444;--green:#22c55e;--purple:#a855f7;
+      --t1:#f0f4ff;--t2:#8a99b8;--t3:#4a5568;
+      --r6:6px;--r12:12px;--r18:18px;
+      --ease:0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh}
+    .orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.15;animation:orb-float 14s ease-in-out infinite}
+    .orb1{width:500px;height:500px;background:radial-gradient(circle,#1a6cf6,transparent 70%);top:-100px;right:-80px;animation-delay:0s}
+    .orb2{width:400px;height:400px;background:radial-gradient(circle,#a855f7,transparent 70%);bottom:-100px;left:-80px;animation-delay:-7s}
+    @keyframes orb-float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-30px)}}
+    /* Header */
+    .header{position:sticky;top:0;z-index:100;background:rgba(9,14,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .header-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .brand-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--t1)}
+    .brand-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal)}
+    .back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--card);border:1px solid var(--border-l);border-radius:var(--r6);color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:var(--ease)}
+    .back-btn:hover{color:var(--t1);border-color:rgba(26,108,246,0.4)}
+    /* Main content */
+    .content{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:60px 24px}
+    .hero{text-align:center;margin-bottom:56px}
+    .hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:18px}
+    .hero h1{font-family:'Playfair Display',serif;font-size:42px;font-weight:800;line-height:1.15;color:var(--t1);margin-bottom:14px}
+    .hero h1 span{background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:16px;color:var(--t2);max-width:560px;margin:0 auto 28px;line-height:1.7}
+    /* Billing toggle */
+    .billing-toggle{display:inline-flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border-l);border-radius:99px;padding:4px 4px}
+    .bill-opt{padding:8px 20px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--ease);color:var(--t2);border:none;background:transparent;font-family:inherit}
+    .bill-opt.active{background:var(--blue);color:white;box-shadow:0 2px 12px rgba(26,108,246,0.4)}
+    .save-badge{display:inline-flex;align-items:center;padding:3px 8px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.25);border-radius:99px;font-size:10px;font-weight:700;color:var(--green);margin-left:4px}
+    /* Plans grid */
+    .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:60px}
+    .plan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r18);padding:32px 28px;display:flex;flex-direction:column;gap:20px;position:relative;transition:var(--ease);overflow:hidden}
+    .plan-card::before{content:'';position:absolute;inset:0;opacity:0;transition:var(--ease);pointer-events:none}
+    .plan-card.popular{border-color:rgba(26,108,246,0.5);background:linear-gradient(145deg,#131d30,rgba(26,108,246,0.06))}
+    .plan-card.popular::before{background:radial-gradient(ellipse at 50% 0%,rgba(26,108,246,0.12),transparent 70%);opacity:1}
+    .plan-card.elite-card{border-color:rgba(168,85,247,0.4);background:linear-gradient(145deg,#131d30,rgba(168,85,247,0.05))}
+    .popular-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--blue),var(--teal));color:white;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:4px 18px;border-radius:0 0 10px 10px}
+    .plan-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--t1)}
+    .plan-desc{font-size:13px;color:var(--t2);line-height:1.6}
+    .plan-price{display:flex;align-items:baseline;gap:4px}
+    .price-amount{font-size:42px;font-weight:800;color:var(--t1);line-height:1}
+    .price-currency{font-size:18px;color:var(--t2);align-self:flex-start;margin-top:8px}
+    .price-period{font-size:13px;color:var(--t3)}
+    .price-yearly-note{font-size:11px;color:var(--green);margin-top:4px}
+    .plan-features{display:flex;flex-direction:column;gap:9px;flex:1}
+    .feat-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t2)}
+    .feat-row.disabled{color:var(--t3);text-decoration:line-through;opacity:0.5}
+    .feat-check{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+    .feat-check.yes{background:rgba(34,197,94,0.2);color:var(--green)}
+    .feat-check.no{background:rgba(74,85,104,0.3);color:var(--t3)}
+    .plan-btn{padding:13px;border:none;border-radius:var(--r6);font-size:14px;font-weight:700;cursor:pointer;transition:var(--ease);font-family:inherit;text-align:center}
+    .plan-btn.primary{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;box-shadow:0 4px 20px rgba(26,108,246,0.35)}
+    .plan-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(26,108,246,0.5)}
+    .plan-btn.secondary{background:var(--surface);border:1px solid var(--border-l);color:var(--t2)}
+    .plan-btn.secondary:hover{color:var(--t1);border-color:var(--border-l)}
+    .plan-btn.elite-btn{background:linear-gradient(135deg,var(--purple),#1a6cf6);color:white;box-shadow:0 4px 20px rgba(168,85,247,0.3)}
+    .plan-btn.elite-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(168,85,247,0.45)}
+    .plan-btn.current-btn{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--green);cursor:default}
+    /* FAQ / guarantee */
+    .guarantee{text-align:center;padding:32px;background:var(--card);border:1px solid var(--border);border-radius:var(--r18);margin-bottom:40px}
+    .guarantee h3{font-size:18px;font-weight:700;margin-bottom:8px}
+    .guarantee p{font-size:13px;color:var(--t2);line-height:1.7}
+    /* Comparison table */
+    .compare-title{text-align:center;font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:24px}
+    .compare-table{width:100%;border-collapse:collapse;font-size:13px}
+    .compare-table th{padding:12px 16px;text-align:left;color:var(--t2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border)}
+    .compare-table th:not(:first-child){text-align:center}
+    .compare-table td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--t2)}
+    .compare-table td:not(:first-child){text-align:center}
+    .compare-table tr:hover td{background:rgba(255,255,255,0.02)}
+    .ct-yes{color:var(--green);font-size:15px}
+    .ct-no{color:var(--t3);font-size:15px}
+    @media(max-width:900px){.plans-grid{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}}
+    @media(max-width:600px){.hero h1{font-size:28px}.compare-table{display:none}}
+  </style>
+</head>
+<body>
+  <div class="orbs"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        <div><div class="brand-name">خنساء</div><div class="brand-tag">Editorial Intelligence</div></div>
+      </a>
+      <a href="index.html" class="back-btn">← Back to Dashboard</a>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="hero">
+      <div class="hero-badge">⭐ 14-Day Pro Trial • No Credit Card Required</div>
+      <h1>Choose Your <span>Editorial Power</span></h1>
+      <p>Unlock the full potential of خنساء's editorial intelligence — from live news scanning to AI-powered Arabic rewriting.</p>
+      <div class="billing-toggle">
+        <button class="bill-opt active" id="billMonthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="bill-opt" id="billYearly" onclick="setBilling('yearly')">Yearly <span class="save-badge">Save 17%</span></button>
+      </div>
+    </div>
+
+    <div class="plans-grid">
+      <!-- FREE -->
+      <div class="plan-card" id="card-free">
+        <div>
+          <div class="plan-name">Free</div>
+          <div class="plan-desc">Get started at no cost. Perfect for exploring the platform.</div>
+        </div>
+        <div>
+          <div class="plan-price"><span class="price-currency">$</span><span class="price-amount">0</span><span class="price-period">/mo</span></div>
+        </div>
+        <div class="plan-features">
+          <div class="feat-row"><div class="feat-check yes">✓</div>20 articles per day</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>5 news sources</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Breaking news ticker</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>3 Arabic rewrites/day</div>
+          <div class="feat-row disabled"><div class="feat-check no">✕</div>Advanced search & filters</div>
+          <div class="feat-row disabled"><div class="feat-check no">✕</div>Export &amp; copy brief</div>
+          <div class="feat-row disabled"><div class="feat-check no">✕</div>Market analysis (Gold/Crypto)</div>
+          <div class="feat-row disabled"><div class="feat-check no">✕</div>Elite Radar Intelligence</div>
+        </div>
+        <button class="plan-btn secondary" id="btn-free" onclick="selectPlan('free')">Get Started Free</button>
+      </div>
+
+      <!-- PRO -->
+      <div class="plan-card popular" id="card-pro">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div style="margin-top:14px">
+          <div class="plan-name">Pro</div>
+          <div class="plan-desc">For active journalists and translation teams who need full power.</div>
+        </div>
+        <div>
+          <div class="plan-price"><span class="price-currency">$</span><span class="price-amount" id="pro-price">29</span><span class="price-period" id="pro-period">/mo</span></div>
+          <div class="price-yearly-note" id="pro-yearly-note" style="display:none">Billed $290/year — save $58</div>
+        </div>
+        <div class="plan-features">
+          <div class="feat-row"><div class="feat-check yes">✓</div>500 articles per day</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>15 premium news sources</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>50 Arabic rewrites/day</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Advanced search &amp; filters</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Export &amp; copy brief</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Market analysis (Gold/Crypto)</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Priority article scoring</div>
+          <div class="feat-row disabled"><div class="feat-check no">✕</div>Elite Radar Intelligence</div>
+        </div>
+        <button class="plan-btn primary" id="btn-pro" onclick="selectPlan('pro')">Start Pro Trial Free</button>
+      </div>
+
+      <!-- ELITE -->
+      <div class="plan-card elite-card" id="card-elite">
+        <div>
+          <div class="plan-name" style="background:linear-gradient(135deg,#d8b4fe,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Elite</div>
+          <div class="plan-desc">Unlimited access for power users and entire editorial teams.</div>
+        </div>
+        <div>
+          <div class="plan-price"><span class="price-currency">$</span><span class="price-amount" id="elite-price">79</span><span class="price-period" id="elite-period">/mo</span></div>
+          <div class="price-yearly-note" id="elite-yearly-note" style="display:none">Billed $790/year — save $158</div>
+        </div>
+        <div class="plan-features">
+          <div class="feat-row"><div class="feat-check yes">✓</div>Unlimited articles</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>All 25+ news sources</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Unlimited Arabic rewrites</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Everything in Pro</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>⚡ Elite Radar Intelligence</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Priority support</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>Team collaboration (coming)</div>
+          <div class="feat-row"><div class="feat-check yes">✓</div>API access (coming)</div>
+        </div>
+        <button class="plan-btn elite-btn" id="btn-elite" onclick="selectPlan('elite')">Go Elite</button>
+      </div>
+    </div>
+
+    <div class="guarantee">
+      <h3>🔒 Secure & Risk-Free</h3>
+      <p>All accounts start with a 14-day Pro trial. Your API key is stored only in your browser and sent directly to Google's servers — never through our system.<br/>Cancel or downgrade anytime from your account settings.</p>
+    </div>
+
+    <div class="compare-title">Full Feature Comparison</div>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Feature</th><th>Free</th><th>Pro</th><th>Elite</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Articles per day</td><td>20</td><td>500</td><td>Unlimited</td></tr>
+        <tr><td>News sources</td><td>5</td><td>15</td><td>All 25+</td></tr>
+        <tr><td>Arabic rewrites / day</td><td>3</td><td>50</td><td>Unlimited</td></tr>
+        <tr><td>Breaking news ticker</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Advanced search</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Topic filters</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Export / copy brief</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Market analysis (Gold/Crypto)</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Elite Radar Intelligence</td><td class="ct-no">✕</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Priority article scoring</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>14-day Pro trial</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    let billingCycle = 'monthly';
+    let currentUser = null;
+
+    // Load user asynchronously
+    window.KhansaaAuth.getCurrentUser().then(user => {
+      currentUser = user;
+      if (user) {
+        const btn = document.getElementById('btn-' + user.plan);
+        if (btn) { btn.textContent = '✓ Current Plan'; btn.className = 'plan-btn current-btn'; }
+      }
+      // Check for successful payment redirect
+      const params = new URLSearchParams(location.search);
+      if (params.get('payment') === 'success' && user) {
+        const plan  = params.get('plan')  || 'pro';
+        const cycle = params.get('cycle') || 'monthly';
+        window.KhansaaAuth.updateUserPlan(user.id, plan, cycle).then(() => {
+          showSuccessBanner(plan, cycle);
+          history.replaceState({}, '', 'plans.html');
+        });
+      }
+    });
+
+    function showSuccessBanner(plan, cycle) {
+      const names = { pro:'Pro', elite:'Elite' };
+      const b = document.createElement('div');
+      b.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);border-radius:12px;padding:14px 24px;font-size:14px;font-weight:600;color:#86efac;z-index:999;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.4)';
+      b.textContent = `✓ You are now on the ${names[plan] || plan} plan!`;
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 5000);
+    }
+
+    function setBilling(cycle) {
+      billingCycle = cycle;
+      document.getElementById('billMonthly').classList.toggle('active', cycle === 'monthly');
+      document.getElementById('billYearly').classList.toggle('active',  cycle === 'yearly');
+      document.getElementById('pro-price').textContent  = cycle === 'yearly' ? '24' : '29';
+      document.getElementById('pro-yearly-note').style.display  = cycle === 'yearly' ? 'block' : 'none';
+      document.getElementById('elite-price').textContent = cycle === 'yearly' ? '66' : '79';
+      document.getElementById('elite-yearly-note').style.display = cycle === 'yearly' ? 'block' : 'none';
+    }
+
+    async function selectPlan(plan) {
+      if (!currentUser) { window.location.href = 'auth.html?tab=signup'; return; }
+      if (currentUser.plan === plan) return;
+      if (plan === 'free') {
+        await window.KhansaaAuth.updateUserPlan(currentUser.id, 'free', 'monthly');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // ── Create Ziina payment intent ──
+      const { ZIINA_API_KEY, ZIINA_API_BASE, ZIINA_PRICES } = window.KhansaaConfig;
+      const amountFils = ZIINA_PRICES[plan]?.[billingCycle] || 10600;
+      const successUrl  = `${location.origin}/plans.html?payment=success&plan=${plan}&cycle=${billingCycle}`;
+      const cancelUrl   = `${location.origin}/plans.html?payment=cancelled`;
+
+      const btn = document.getElementById('btn-' + plan);
+      const origText = btn.textContent;
+      btn.textContent = '⏳ Creating payment...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${ZIINA_API_BASE}/payment_intent`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${ZIINA_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: amountFils,
+            currency_code: 'AED',
+            transaction_source: 'directPayment',
+            success_url: successUrl,
+            failure_url: cancelUrl,
+            message: `خنساء ${plan.charAt(0).toUpperCase()+plan.slice(1)} Plan — ${billingCycle}`,
+            test: true
+          })
+        });
+        const data = await res.json();
+        if (data?.url) {
+          window.location.href = data.url;
+        } else if (data?.payment_url) {
+          window.location.href = data.payment_url;
+        } else {
+          throw new Error(data?.message || 'No payment URL returned');
+        }
+      } catch(e) {
+        btn.textContent = origText;
+        btn.disabled = false;
+        // Fallback: activate plan directly (sandbox mode)
+        const confirmed = confirm(`Ziina sandbox: Activate ${plan} plan now?\n(In production this redirects to Ziina checkout)`);
+        if (confirmed) {
+          await window.KhansaaAuth.updateUserPlan(currentUser.id, plan, billingCycle);
+          window.location.href = 'index.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
