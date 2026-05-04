@@ -5,15 +5,15 @@
 
 const PLANS = {
   free:  { id:'free',  name:'Free',  price:{monthly:0,yearly:0},    limits:{articlesPerDay:20, arabicRewrites:3,  hasSearch:false,hasFilters:false,hasMarkets:false,hasEliteRadar:false,hasExport:false} },
-  pro:   { id:'pro',   name:'Pro',   price:{monthly:29,yearly:24},   limits:{articlesPerDay:500,arabicRewrites:50, hasSearch:true, hasFilters:true, hasMarkets:true, hasEliteRadar:false,hasExport:true} },
-  elite: { id:'elite', name:'Elite', price:{monthly:79,yearly:66},   limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasEliteRadar:true,hasExport:true} }
+  pro:   { id:'elite', name:'Elite', price:{monthly:10,yearly:50},  limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasEliteRadar:true,hasExport:true} }, // Legacy support
+  elite: { id:'elite', name:'Elite', price:{monthly:10,yearly:50},  limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasEliteRadar:true,hasExport:true} }
 };
 
 function getUserPlan(profile) {
   if (!profile) return PLANS.free;
   const trialEndsAt = profile.trial_ends_at ? new Date(profile.trial_ends_at).getTime() : 0;
   const isTrial = profile.plan === 'free' && trialEndsAt && Date.now() < trialEndsAt;
-  if (isTrial) return { ...PLANS.pro, isTrial: true, trialEndsAt };
+  if (isTrial) return { ...PLANS.elite, isTrial: true, trialEndsAt };
   return PLANS[profile.plan] || PLANS.free;
 }
 
@@ -39,9 +39,25 @@ async function getCurrentUser() {
     if (!client) return null;
     const { data: { session } } = await client.auth.getSession();
     if (!session) return null;
-    const profile = await getProfile(session.user.id);
-    return profile ? { ...profile, email: session.user.email } : null;
-  } catch { return null; }
+    
+    let profile = await getProfile(session.user.id);
+    
+    // Auto-retry if profile trigger hasn't finished yet (common after signup)
+    if (!profile) {
+      await new Promise(r => setTimeout(r, 800));
+      profile = await getProfile(session.user.id);
+    }
+    
+    // If STILL no profile, return a safe fallback so they don't get logged out
+    if (!profile) {
+      profile = { id: session.user.id, plan: 'free', trial_ends_at: new Date(Date.now() + 14*86400000).toISOString() };
+    }
+    
+    return { ...profile, email: session.user.email };
+  } catch (e) { 
+    console.error("Auth Error:", e);
+    return null; 
+  }
 }
 
 async function signUp(name, email, password) {

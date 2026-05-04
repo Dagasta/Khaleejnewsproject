@@ -1,5 +1,5 @@
 /* ============================================================
-   خنساء — Supabase Configuration
+   Atheer — Supabase Configuration
    ============================================================ */
 'use strict';
 
@@ -12,9 +12,10 @@ const ZIINA_PUBLISHABLE_KEY = 'sb_publishable_0fRwQXwa_h7gtxR3vG6XqA_WgHexNAz';
 const ZIINA_API_BASE        = 'https://api-sandbox.ziina.com/api';
 
 // Pricing in AED fils (1 AED = 100 fils)
+// $10 USD = ~37 AED (3700 fils)
+// $50 USD = ~184 AED (18400 fils)
 const ZIINA_PRICES = {
-  pro:   { monthly: 10600, yearly: 106000 },   // 106 AED / 1060 AED
-  elite: { monthly: 29000, yearly: 290000 }    // 290 AED / 2900 AED
+  elite: { monthly: 3700, yearly: 18400 }
 };
 
 // Initialize Supabase client (requires Supabase CDN loaded first)

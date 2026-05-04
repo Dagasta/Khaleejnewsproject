@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Axiom | Subscription Plans</title>
+  <title>Atheer | Subscription Plans</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet"/>
@@ -110,7 +110,7 @@
           </svg>
         </div>
         <div>
-          <span class="brand-name">Axiom</span>
+          <span class="brand-name">Atheer</span>
           <span class="brand-tagline">Editorial OS</span>
         </div>
       </a>
@@ -152,39 +152,15 @@
         <button class="plan-btn secondary" id="btn-free" onclick="selectPlan('free')">Get Started Free</button>
       </div>
 
-      <!-- PRO -->
-      <div class="plan-card popular" id="card-pro">
-        <div class="popular-badge">MOST POPULAR</div>
-        <div style="margin-top:14px">
-          <div class="plan-name">Pro</div>
-          <div class="plan-desc">For active journalists and translation teams who need full power.</div>
-        </div>
-        <div>
-          <div class="plan-price"><span class="price-currency">$</span><span class="price-amount" id="pro-price">29</span><span class="price-period" id="pro-period">/mo</span></div>
-          <div class="price-yearly-note" id="pro-yearly-note" style="display:none">Billed $290/year — save $58</div>
-        </div>
-        <div class="plan-features">
-          <div class="feat-row"><div class="feat-check yes">✓</div>500 articles per day</div>
-          <div class="feat-row"><div class="feat-check yes">✓</div>15 premium news sources</div>
-          <div class="feat-row"><div class="feat-check yes">✓</div>50 Arabic rewrites/day</div>
-          <div class="feat-row"><div class="feat-check yes">✓</div>Advanced search &amp; filters</div>
-          <div class="feat-row"><div class="feat-check yes">✓</div>Export &amp; copy brief</div>
-          <div class="feat-row"><div class="feat-check yes">✓</div>Market analysis (Gold/Crypto)</div>
-          <div class="feat-row"><div class="feat-check yes">✓</div>Priority article scoring</div>
-          <div class="feat-row disabled"><div class="feat-check no">✕</div>Elite Radar Intelligence</div>
-        </div>
-        <button class="plan-btn primary" id="btn-pro" onclick="selectPlan('pro')">Start Pro Trial Free</button>
-      </div>
 
-      <!-- ELITE -->
       <div class="plan-card elite-card" id="card-elite">
         <div>
           <div class="plan-name" style="background:linear-gradient(135deg,#d8b4fe,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Elite</div>
           <div class="plan-desc">Unlimited access for power users and entire editorial teams.</div>
         </div>
         <div>
-          <div class="plan-price"><span class="price-currency">$</span><span class="price-amount" id="elite-price">79</span><span class="price-period" id="elite-period">/mo</span></div>
-          <div class="price-yearly-note" id="elite-yearly-note" style="display:none">Billed $790/year — save $158</div>
+          <div class="plan-price"><span class="price-currency">$</span><span class="price-amount" id="elite-price">10</span><span class="price-period" id="elite-period">/mo</span></div>
+          <div class="price-yearly-note" id="elite-yearly-note" style="display:none">Billed $50/year — save $70</div>
         </div>
         <div class="plan-features">
           <div class="feat-row"><div class="feat-check yes">✓</div>Unlimited articles</div>
@@ -208,20 +184,20 @@
     <div class="compare-title">Full Feature Comparison</div>
     <table class="compare-table">
       <thead>
-        <tr><th>Feature</th><th>Free</th><th>Pro</th><th>Elite</th></tr>
+        <tr><th>Feature</th><th>Free</th><th>Elite</th></tr>
       </thead>
       <tbody>
-        <tr><td>Articles per day</td><td>20</td><td>500</td><td>Unlimited</td></tr>
-        <tr><td>News sources</td><td>5</td><td>15</td><td>All 25+</td></tr>
-        <tr><td>Arabic rewrites / day</td><td>3</td><td>50</td><td>Unlimited</td></tr>
-        <tr><td>Breaking news ticker</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
-        <tr><td>Advanced search</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
-        <tr><td>Topic filters</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
-        <tr><td>Export / copy brief</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
-        <tr><td>Market analysis (Gold/Crypto)</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
-        <tr><td>Elite Radar Intelligence</td><td class="ct-no">✕</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
-        <tr><td>Priority article scoring</td><td class="ct-no">✕</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
-        <tr><td>14-day Pro trial</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Articles per day</td><td>20</td><td>Unlimited</td></tr>
+        <tr><td>News sources</td><td>5</td><td>All 25+</td></tr>
+        <tr><td>Arabic rewrites / day</td><td>3</td><td>Unlimited</td></tr>
+        <tr><td>Breaking news ticker</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Advanced search</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Topic filters</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Export / copy brief</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Market analysis (Gold/Crypto)</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Elite Radar Intelligence</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>Priority article scoring</td><td class="ct-no">✕</td><td class="ct-yes">✓</td></tr>
+        <tr><td>14-day Elite trial</td><td class="ct-yes">✓</td><td class="ct-yes">✓</td></tr>
       </tbody>
     </table>
   </div>
@@ -265,10 +241,11 @@
       billingCycle = cycle;
       document.getElementById('billMonthly').classList.toggle('active', cycle === 'monthly');
       document.getElementById('billYearly').classList.toggle('active',  cycle === 'yearly');
-      document.getElementById('pro-price').textContent  = cycle === 'yearly' ? '24' : '29';
-      document.getElementById('pro-yearly-note').style.display  = cycle === 'yearly' ? 'block' : 'none';
-      document.getElementById('elite-price').textContent = cycle === 'yearly' ? '66' : '79';
+      document.getElementById('elite-price').textContent = cycle === 'yearly' ? '50' : '10';
       document.getElementById('elite-yearly-note').style.display = cycle === 'yearly' ? 'block' : 'none';
+      if(cycle==='yearly') {
+        document.getElementById('elite-price').textContent = '4.16';
+      }
     }
 
     async function selectPlan(plan) {
@@ -301,7 +278,7 @@
             transaction_source: 'directPayment',
             success_url: successUrl,
             failure_url: cancelUrl,
-            message: `Axiom ${plan.charAt(0).toUpperCase()+plan.slice(1)} Plan — ${billingCycle}`,
+            message: `Atheer ${plan.charAt(0).toUpperCase()+plan.slice(1)} Plan — ${billingCycle}`,
             test: true
           })
         });
