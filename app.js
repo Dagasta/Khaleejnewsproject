@@ -310,66 +310,65 @@ async function fetchFeed(source) {
 let _isInitialDataReady = false;
 
 async function loadAllFeeds(isInitial = false) {
+  // ── INSTANT ACCESS: If we have zero articles, show high-converting demo data immediately
+  // This ensures the user NEVER sees a blank screen or a long loading spinner
   if (allArticles.length === 0 && !_isInitialDataReady) {
-    loadingState.style.display = 'flex';
-    newsGrid.style.display     = 'none';
+    loadDemoFallback(); // Populate with premium demo intel instantly
+    _isInitialDataReady = true;
   }
   
-  lastUpdated.innerHTML    = '<span class="radar-scan"></span> High-Speed Sync...';
+  // Transition smoothly from demo to live
+  if (loadingState.style.display !== 'none') {
+    loadingState.style.display = 'none';
+    newsGrid.style.display     = 'grid';
+  }
+
+  lastUpdated.innerHTML    = '<span class="radar-scan"></span> Neural Sync Active...';
   lastUpdated.style.color    = '#3b82f6';
 
-  // Sort sources: Official WAM/News first for fastest landing
   const sortedSources = [...SOURCES].sort((a,b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
-  
   let successCount = 0;
-  let processed = 0;
 
-  // SMART CONCURRENCY: Process in chunks of 5 to avoid browser network congestion
-  const CHUNK_SIZE = 5;
-  for (let i = 0; i < sortedSources.length; i += CHUNK_SIZE) {
-    const chunk = sortedSources.slice(i, i + CHUNK_SIZE);
-    
-    await Promise.allSettled(chunk.map(async (s) => {
-      try {
-        const feedItems = await fetchFeed(s);
-        let addedAny = false;
-        
-        feedItems.forEach(item => {
-          const exists = allArticles.some(ex => ex.id === item.id || ex.link === item.link);
-          if (!exists) {
-            Object.assign(item, scoreArticle(item, s.cat)); 
-            allArticles.unshift(item);
-            addedAny = true;
-          }
-        });
-
-        successCount++;
-        sourceStatuses[s.name] = 'online';
-
-        if (addedAny || isInitial) {
-          _isInitialDataReady = true;
-          // De-duplicate and sort efficiently
-          allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
-          if (allArticles.length > 1000) allArticles = allArticles.slice(0, 1000);
-          
-          if (allArticles.length > 0) {
-            loadingState.style.display = 'none';
-            newsGrid.style.display     = 'grid';
-            requestAnimationFrame(() => {
-              applyFiltersAndRender();
-              renderTicker();
-              renderRightPanel();
-            });
-          }
+  // ── HIGH-SPEED PARALLEL EXECUTION
+  // We now use a more aggressive parallel limit (8 sources at once)
+  const CONCURRENCY_LIMIT = 8;
+  const processSource = async (s) => {
+    try {
+      const feedItems = await fetchFeed(s);
+      let newCount = 0;
+      
+      feedItems.forEach(item => {
+        const exists = allArticles.some(ex => ex.id === item.id || ex.link === item.link);
+        if (!exists) {
+          Object.assign(item, scoreArticle(item, s.cat)); 
+          allArticles.unshift(item);
+          newCount++;
         }
-      } catch (e) {
-        sourceStatuses[s.name] = 'error';
-      } finally {
-        processed++;
+      });
+
+      if (newCount > 0) {
+        // Remove demo items if live data is arriving
+        allArticles = allArticles.filter(a => !a.id.startsWith('d'));
+        allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+        if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
+        
+        // Batch UI updates using requestAnimationFrame for 60fps performance
+        requestAnimationFrame(() => {
+          applyFiltersAndRender();
+          renderTicker();
+          renderRightPanel();
+        });
       }
-    }));
-    
-    // Save to storage after each chunk for safety
+      successCount++;
+      sourceStatuses[s.name] = 'online';
+    } catch (e) {
+      sourceStatuses[s.name] = 'error';
+    }
+  };
+
+  // Run in parallel batches
+  for (let i = 0; i < sortedSources.length; i += CONCURRENCY_LIMIT) {
+    await Promise.allSettled(sortedSources.slice(i, i + CONCURRENCY_LIMIT).map(processSource));
     saveToStorage();
   }
   
@@ -1042,25 +1041,36 @@ if (!hasGeminiKey() && !localStorage.getItem('studioSetupSeen')) {
 }
 
 // ── FIRST LOAD ───────────────────────────────────────────────
-loadFromStorage();
-if (allArticles.length > 0) {
-  applyFiltersAndRender();
-  renderTicker();
-  renderRightPanel();
-}
+// ── STARTUP SEQUENCE: Instant TTI ─────────────────────────────
+(function bootSystem() {
+  loadFromStorage();
+  
+  // If we have cached news, render immediately
+  if (allArticles.length > 0) {
+    _isInitialDataReady = true;
+    loadingState.style.display = 'none';
+    newsGrid.style.display = 'grid';
+    applyFiltersAndRender();
+    renderTicker();
+    renderRightPanel();
+  } else {
+    // Zero cache: Use demo fallback for instant "wow" factor while first sync runs
+    loadDemoFallback();
+    _isInitialDataReady = true;
+    loadingState.style.display = 'none';
+    newsGrid.style.display = 'grid';
+  }
 
-// 🗑️ AUTO-CLEANUP: Remove news older than 48 hours (2 days)
-const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-const now = Date.now();
-allArticles = allArticles.filter(a => {
-  const pubDate = new Date(a.pubDate).getTime();
-  return (now - pubDate) < TWO_DAYS_MS;
-});
-saveToStorage();
+  // 🗑️ CLEANUP
+  const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+  allArticles = allArticles.filter(a => (Date.now() - new Date(a.pubDate).getTime()) < TWO_DAYS_MS);
+  saveToStorage();
 
-loadAllFeeds(true); // Initial load with spinner
-setInterval(() => loadAllFeeds(false), 2 * 60 * 1000); // 2-Minute Market Pulse (Shadow Scan)
-updateEngineDisplay();
+  // START LIVE SCAN
+  loadAllFeeds(true);
+  setInterval(() => loadAllFeeds(false), 2 * 60 * 1000);
+  updateEngineDisplay();
+})();
 
 // ── SUBSCRIPTION GATING — applied after page loads ───────────
 (function applyPlanGating() {
