@@ -310,47 +310,44 @@ async function fetchFeed(source) {
 let _isInitialDataReady = false;
 
 async function loadAllFeeds(isInitial = false) {
-  // If we have articles in memory (from storage), show them instantly
+  // If we have cached news, make sure it's visible while syncing
   if (allArticles.length > 0) {
     loadingState.style.display = 'none';
     newsGrid.style.display     = 'grid';
   } else if (isInitial) {
-    // Only show loading if we literally have nothing
     loadingState.style.display = 'flex';
     newsGrid.style.display     = 'none';
   }
-  
+
   lastUpdated.innerHTML    = '<span class="radar-scan"></span> Neural Sync Active...';
   lastUpdated.style.color    = '#3b82f6';
 
   const sortedSources = [...SOURCES].sort((a,b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
   let successCount = 0;
 
-  // ── HIGH-SPEED PARALLEL EXECUTION
-  // We now use a more aggressive parallel limit (8 sources at once)
   const CONCURRENCY_LIMIT = 8;
   const processSource = async (s) => {
     try {
       const feedItems = await fetchFeed(s);
-      let newCount = 0;
+      let addedAny = false;
       
       feedItems.forEach(item => {
         const exists = allArticles.some(ex => ex.id === item.id || ex.link === item.link);
         if (!exists) {
           Object.assign(item, scoreArticle(item, s.cat)); 
           allArticles.unshift(item);
-          newCount++;
+          addedAny = true;
         }
       });
 
-      if (newCount > 0 || isInitial) {
+      if (addedAny || (isInitial && allArticles.length > 0)) {
         allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
         if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
         
-        // Instant Transition
+        // Ensure UI is visible as soon as we have any live data
         loadingState.style.display = 'none';
         newsGrid.style.display     = 'grid';
-
+        
         requestAnimationFrame(() => {
           applyFiltersAndRender();
           renderTicker();
@@ -364,7 +361,6 @@ async function loadAllFeeds(isInitial = false) {
     }
   };
 
-  // Run in parallel batches
   for (let i = 0; i < sortedSources.length; i += CONCURRENCY_LIMIT) {
     await Promise.allSettled(sortedSources.slice(i, i + CONCURRENCY_LIMIT).map(processSource));
     saveToStorage();
@@ -393,26 +389,16 @@ function notifyNewHighPriority(title) {
 
 // ── FALLBACK DEMO DATA ───────────────────────────────────────
 function loadDemoFallback() {
+  // Demo fallback only used if live fetch fails completely and storage is empty
   const demo = [
-    { id:'d1', title:'Dubai Tops Global Competitiveness Index for Third Year',            category:'rankings', priority:'high',   source:'WAM', sourceLabel:'WAM', pubDate: new Date().toISOString(), link:'#', description: 'Dubai has been ranked first globally in the latest edition of the World Competitiveness Report, citing infrastructure excellence and ease of doing business as key drivers.' },
-    { id:'d2', title:'UAE Economy Grows 5.4% in Q1, Driven by Non-Oil Sector Surge',     category:'economy',  priority:'high',   source:'Gulf News', sourceLabel:'GN', pubDate: new Date().toISOString(), link:'#', description: 'The UAE\'s non-oil economy expanded at its fastest pace in six years, driven by tourism, logistics and financial services growth.' },
-    { id:'d3', title:'Sheikh Mohammed Chairs Cabinet Session on AI National Strategy',    category:'uae',      priority:'high',   source:'WAM', sourceLabel:'WAM', pubDate: new Date().toISOString(), link:'#', description: 'His Highness Sheikh Mohammed bin Rashid Al Maktoum presided over the UAE Cabinet, approving the updated National Artificial Intelligence Strategy 2031.' },
-    { id:'d4', title:'GCC Leaders Convene Emergency Summit on Regional Stability',        category:'politics', priority:'high',   source:'Arab News', sourceLabel:'AN', pubDate: new Date().toISOString(), link:'#', description: 'Gulf Cooperation Council heads of state met in Riyadh for an extraordinary summit to discuss geopolitical developments across the Middle East.' },
-    { id:'d5', title:'ADNOC Signs $10 Billion Energy Deal with Asian Partners',           category:'economy',  priority:'medium', source:'National', sourceLabel:'NAT', pubDate: new Date().toISOString(), link:'#', description: 'Abu Dhabi National Oil Company has signed multi-billion dollar energy supply agreements with South Korean and Japanese firms.' },
-    { id:'d6', title:'Dubai Real Estate Sector Records Highest Q1 Transactions in Decade',category:'economy',  priority:'medium', source:'Khaleej Times', sourceLabel:'KT', pubDate: new Date().toISOString(), link:'#', description: 'Property sales in Dubai reached AED 92 billion in Q1, a 22% increase driven by high-net-worth investors from Europe and Asia.' },
-    { id:'d7', title:'UAE Ranked 2nd Globally for Government Digital Services',           category:'rankings', priority:'medium', source:'WAM', sourceLabel:'WAM', pubDate: new Date().toISOString(), link:'#', description: 'The OECD Digital Government Index placed the UAE in second place globally, commending its seamless integration of AI-driven public services.' },
-    { id:'d8', title:'OPEC+ Agrees to Further Oil Output Reduction Amid Market Pressures',category:'economy',  priority:'high',   source:'Reuters', sourceLabel:'Reuters', pubDate: new Date().toISOString(), link:'#', description: 'OPEC+ members agreed to extend production cuts through Q3, sending crude prices toward $90 per barrel.' },
-    { id:'d9', title:'UAE Ministry Launches New Golden Visa Categories for Scientists',   category:'uae',      priority:'medium', source:'Gulf News', sourceLabel:'GN', pubDate: new Date().toISOString(), link:'#', description: 'The UAE has expanded its Golden Visa programme to include scientists, researchers, and outstanding students in STEM fields.' },
-    { id:'d10',title:'IMF Upgrades UAE Growth Forecast to 5.1% for 2026',               category:'rankings', priority:'medium', source:'BBC', sourceLabel:'BBC', pubDate: new Date().toISOString(), link:'#', description: 'The International Monetary Fund revised the UAE\'s economic growth projection upward, citing robust non-oil activity and strong FDI inflows.' },
+    { id:'d1', title:'Dubai Tops Global Competitiveness Index for Third Year', category:'rankings', priority:'high', source:'WAM', sourceLabel:'WAM', pubDate: new Date().toISOString(), link:'#', description: 'Dubai has been ranked first globally in the world competitiveness report.' },
+    { id:'d2', title:'UAE Economy Grows 5.4% in Q1', category:'economy', priority:'high', source:'Gulf News', sourceLabel:'GN', pubDate: new Date().toISOString(), link:'#', description: 'The UAE non-oil economy expanded at its fastest pace in six years.' }
   ];
-  demo.forEach(a => { a.relevanceScore = a.priority === 'high' ? 10 : 5; });
-  allArticles = demo;
-  updateStats(demo, 0);
-  renderTicker();
-  renderRightPanel();
-  applyFiltersAndRender();
-  // Show update time even for demo
-  lastUpdated.textContent = `Demo data — ${new Date().toLocaleTimeString('en-AE', { hour:'2-digit', minute:'2-digit' })}`;
+  if (allArticles.length === 0) {
+    allArticles = demo;
+    applyFiltersAndRender();
+    renderTicker();
+  }
 }
 
 // ── STATS ────────────────────────────────────────────────────
