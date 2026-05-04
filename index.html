@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>خنساء | Editorial Intelligence Dashboard</title>
-  <meta name="description" content="Smart editorial assistant for UAE, Dubai, Economy, Politics and Global Rankings news — curated for journalists." />
+  <title>Axiom | The Editorial OS</title>
+  <meta name="description" content="Axiom — The premium editorial operating system for live news and AI-powered translation." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
@@ -20,20 +20,20 @@
       <div class="brand">
         <div class="brand-logo">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="url(#grad1)"/>
-            <path d="M8 10h16M8 16h10M8 22h13" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="24" cy="22" r="3" fill="#F59E0B"/>
+            <rect width="32" height="32" rx="8" fill="#18181b"/>
+            <path d="M16 6L26 12v12l-10 6-10-6V12l10-6z" stroke="url(#gradAxiom)" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M16 18v8M10 14l6 4 6-4" stroke="url(#gradAxiom)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <defs>
-              <linearGradient id="grad1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#1e3a5f"/>
-                <stop offset="1" stop-color="#0f6e6e"/>
+              <linearGradient id="gradAxiom" x1="6" y1="6" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#f8fafc"/>
+                <stop offset="1" stop-color="#3b82f6"/>
               </linearGradient>
             </defs>
           </svg>
         </div>
         <div>
-          <span class="brand-name">خنساء</span>
-          <span class="brand-tagline">Editorial Intelligence</span>
+          <span class="brand-name">Axiom</span>
+          <span class="brand-tagline">Editorial OS</span>
         </div>
       </div>
       <div class="header-right">
@@ -257,34 +257,40 @@
     </aside>
   </main>
 
-  <!-- ARTICLE MODAL -->
+  <!-- ARTICLE MODAL (Studio Pane) -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="articleModal">
       <div class="modal-header">
         <div class="modal-meta">
           <span class="modal-category" id="modalCategory"></span>
-          <span class="modal-source" id="modalSource"></span>
-          <span class="modal-date" id="modalDate"></span>
+          <div style="display:flex;gap:12px;margin-top:4px">
+            <span class="modal-source" id="modalSource"></span>
+            <span class="modal-date" id="modalDate"></span>
+          </div>
         </div>
         <button class="modal-close" id="modalClose">✕</button>
       </div>
+      
       <h2 class="modal-title" id="modalTitle"></h2>
       <p class="modal-summary" id="modalSummary"></p>
+
       <div class="modal-actions">
-        <a href="#" id="modalLink" target="_blank" class="modal-btn primary">Read Full Article ↗</a>
+        <a href="#" id="modalLink" target="_blank" class="modal-btn primary">View Original ↗</a>
         <button class="modal-btn secondary" id="modalCopy">Copy Snippet</button>
-        <button class="modal-btn arabic" id="modalRewriteArabic">✍️ تحرير عربي</button>
+        <button class="modal-btn arabic" id="modalRewriteArabic">✦ Axiom Arabic</button>
       </div>
+
       <div class="modal-publish-block" id="modalPublishBlock" style="display:none">
-        <h4>📝 Ready-to-Use Snippet</h4>
+        <h4>📝 Quick Snippet</h4>
         <div class="publish-text" id="publishText"></div>
-        <button class="copy-btn" id="copyPublishBtn">Copy Snippet</button>
+        <button class="modal-btn secondary" id="copyPublishBtn">Copy Snippet</button>
       </div>
+
       <!-- Arabic rewrite result inside modal -->
       <div class="modal-arabic-result" id="modalArabicResult" style="display:none">
         <div class="arabic-result-header">
-          <span>✍️ التحرير الصحفي العربي</span>
-          <button class="copy-btn" id="copyModalArabicBtn">نسخ</button>
+          <span>✦ Axiom AI Translation</span>
+          <button class="copy-btn" id="copyModalArabicBtn">Copy</button>
         </div>
         <div class="arabic-result-text" id="modalArabicText" dir="rtl"></div>
       </div>
@@ -298,10 +304,10 @@
       <!-- Studio Header -->
       <div class="studio-header">
         <div class="studio-header-left">
-          <div class="studio-logo">✍️</div>
+          <div class="studio-logo">✦</div>
           <div>
-            <h2 class="studio-title">Arabic Editorial Studio</h2>
-            <p class="studio-subtitle">استوديو التحرير الصحفي العربي</p>
+            <h2 class="studio-title">Axiom Studio</h2>
+            <p class="studio-subtitle">Arabic Editorial Engine</p>
           </div>
         </div>
         <div class="studio-header-right">
@@ -356,13 +362,13 @@ The system will rewrite it as professional UAE Arabic editorial content."
 
         <!-- RIGHT: Output -->
         <div class="studio-output-col">
-          <div class="studio-section-label" dir="rtl">📤 التحرير الصحفي — الناتج</div>
+          <div class="studio-section-label" dir="rtl">📤 Axiom Translation Output</div>
 
           <!-- Idle state -->
           <div class="studio-idle" id="studioIdle">
-            <div class="idle-icon">🖊️</div>
-            <p>أدخل النص الإنجليزي واضغط «تحرير عربي»</p>
-            <p class="idle-sub">Paste your English article on the left and click Rewrite</p>
+            <div class="idle-icon">✦</div>
+            <p>Paste text & click Rewrite</p>
+            <p class="idle-sub">Your professional Arabic translation will appear here.</p>
           </div>
 
           <!-- Loading state -->
