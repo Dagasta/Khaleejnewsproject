@@ -4,9 +4,9 @@
 'use strict';
 
 const PLANS = {
-  free:  { id:'free',  name:'Free',  price:{monthly:0,yearly:0},    limits:{articlesPerDay:20, arabicRewrites:3,  hasSearch:false,hasFilters:false,hasMarkets:false,hasEliteRadar:false,hasExport:false} },
-  pro:   { id:'elite', name:'Elite', price:{monthly:10,yearly:50},  limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasEliteRadar:true,hasExport:true} }, // Legacy support
-  elite: { id:'elite', name:'Elite', price:{monthly:10,yearly:50},  limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasEliteRadar:true,hasExport:true} }
+  free:  { id:'free',  name:'Free',  price:{monthly:0,yearly:0},    limits:{articlesPerDay:20, arabicRewrites:3,  hasSearch:false,hasFilters:false,hasMarkets:false,hasExport:false} },
+  pro:   { id:'elite', name:'Elite', price:{monthly:10,yearly:50},  limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasExport:true} }, // Legacy support
+  elite: { id:'elite', name:'Elite', price:{monthly:10,yearly:50},  limits:{articlesPerDay:Infinity,arabicRewrites:Infinity,hasSearch:true,hasFilters:true,hasMarkets:true,hasExport:true} }
 };
 
 function getUserPlan(profile) {
