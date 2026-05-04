@@ -310,10 +310,11 @@ async function fetchFeed(source) {
 let _isInitialDataReady = false;
 
 async function loadAllFeeds(isInitial = false) {
-  // If we have cached news, make sure it's visible while syncing
+  // ── VISIBILITY GUARD: Show UI immediately if we have data
   if (allArticles.length > 0) {
     loadingState.style.display = 'none';
     newsGrid.style.display     = 'grid';
+    emptyState.style.display   = 'none';
   } else if (isInitial) {
     loadingState.style.display = 'flex';
     newsGrid.style.display     = 'none';
@@ -344,9 +345,12 @@ async function loadAllFeeds(isInitial = false) {
         allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
         if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
         
-        // Ensure UI is visible as soon as we have any live data
-        loadingState.style.display = 'none';
-        newsGrid.style.display     = 'grid';
+        // REVEAL UI INSTANTLY
+        if (loadingState.style.display !== 'none') {
+          loadingState.style.display = 'none';
+          newsGrid.style.display     = 'grid';
+          emptyState.style.display   = 'none';
+        }
         
         requestAnimationFrame(() => {
           applyFiltersAndRender();
