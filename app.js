@@ -520,9 +520,15 @@ function applyFiltersAndRender() {
     filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
   }
 
-  // ── Subscription: articles per day cap
-  if (plan.limits.articlesPerDay !== Infinity) {
-    filtered = filtered.slice(0, plan.limits.articlesPerDay);
+  // ── Smart Limitations (Freemium UX)
+  const plan = getPlan();
+  const isFree = plan.id === 'free';
+  
+  // Soft cap: blurred access after 5 articles for free users
+  // We keep the actual limit but blur everything after index 4
+  if (isFree && plan.limits.articlesPerDay !== Infinity) {
+    // We allow them to see the existence of up to their limit, but we will blur later
+    filtered = filtered.slice(0, Math.max(8, plan.limits.articlesPerDay));
   }
 
   // Update counts (Universal Match Logic — MUST MATCH GRID FILTERS)
@@ -549,6 +555,10 @@ function applyFiltersAndRender() {
   // Card click handlers
   newsGrid.querySelectorAll('.news-card').forEach(card => {
     card.addEventListener('click', () => {
+      if (card.classList.contains('locked-card')) {
+        showUpgradePrompt('articles');
+        return;
+      }
       const idx = +card.dataset.idx;
       openModal(filtered[idx]);
     });
@@ -556,14 +566,18 @@ function applyFiltersAndRender() {
 }
 
 function renderCard(a, i) {
-  const isFeatured = i === 0 && activeFilter === 'all' && activePriority === 'all' && !searchQuery;
+  const plan = getPlan();
+  const isFree = plan.id === 'free';
+  const isLocked = isFree && i >= 5; // First 5 articles are free, rest are blurred
+  const lockClass = isLocked ? 'locked-card' : '';
+  const isFeatured = i === 0 && activeFilter === 'all' && activePriority === 'all' && !searchQuery && !isLocked;
   const catLabel   = CATEGORIES[a.category]?.label.split(' ')[0] || a.category;
   const listClass  = isListView ? 'list-view' : '';
   const featuredBadge = isFeatured ? `<div class="featured-badge">★ Top Story</div>` : '';
 
   if (isFeatured) {
     return `
-      <div class="news-card featured ${listClass}" data-idx="${i}" data-id="${a.id}">
+      <div class="news-card featured ${listClass} ${lockClass}" data-idx="${i}" data-id="${a.id}">
         <div class="card-accent ${a.category}"></div>
         <div class="card-body">
           ${featuredBadge}
@@ -583,7 +597,7 @@ function renderCard(a, i) {
   }
 
   return `
-    <div class="news-card ${listClass}" data-idx="${i}" data-id="${a.id}" style="animation-delay:${Math.min(i * 0.04, 0.5)}s">
+    <div class="news-card ${listClass} ${lockClass}" data-idx="${i}" data-id="${a.id}" style="animation-delay:${Math.min(i * 0.04, 0.5)}s">
       <div class="card-accent ${a.category}"></div>
       <div class="card-body">
         <div class="card-meta">
@@ -1078,33 +1092,32 @@ updateEngineDisplay();
 })();
 
 // ── Upgrade prompt helper ─────────────────────────────────────
-function showUpgradePrompt(feature) {
+function showUpgradePrompt(type) {
   const msgs = {
-    search: 'Advanced Search is available on the Pro plan.',
-    filters: 'Advanced topic filters are available on the Pro plan.',
-    markets: 'Gold & Crypto market analysis is available on the Pro plan.',
-    rewrites: 'You have used all your Arabic rewrites for today. Upgrade to Pro for 50/day.'
+    'rewrites': 'You\'ve reached your free daily translation limit. Elite users get unlimited AI transformations.',
+    'articles': 'Elite Access Required. Upgrade to unlock full global news coverage and real-time intelligence.',
+    'search': 'Advanced Search is a premium feature. Upgrade to Elite to find exactly what you need.',
+    'filters': 'Smart Topic Filtering is reserved for Elite members. Unlock full control now.'
   };
-  const msg = msgs[feature] || 'This feature requires a Pro subscription.';
-  const existing = document.getElementById('khansaa-upgrade-toast');
-  if (existing) existing.remove();
+  const msg = msgs[type] || 'Upgrade to Elite for full platform access.';
+  
+  // Remove existing
+  const old = document.getElementById('khansaa-upgrade-toast');
+  if (old) old.remove();
+
   const toast = document.createElement('div');
   toast.id = 'khansaa-upgrade-toast';
   toast.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;
-      background:#131d30;border:1px solid rgba(245,158,11,0.35);border-radius:12px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.5);max-width:360px;
-      position:fixed;bottom:28px;right:28px;z-index:9999;
-      animation:slide-up 0.3s cubic-bezier(0.34,1.56,0.64,1)">
-      <span style="font-size:22px">⭐</span>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#f0f4ff;margin-bottom:4px">${msg}</div>
-        <a href="plans.html" style="font-size:12px;color:#1a6cf6;font-weight:600;text-decoration:none">View Plans →</a>
-      </div>
-      <button onclick="this.closest('#khansaa-upgrade-toast').remove()" style="background:none;border:none;color:#4a5568;cursor:pointer;font-size:16px;margin-left:8px">✕</button>
-    </div>`;
+    <div style="font-size:24px">💎</div>
+    <div style="flex:1">
+      <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:4px">Premium Intelligence Locked</div>
+      <div style="font-size:12px; color:#a1a1aa; line-height:1.4; margin-bottom:12px">${msg}</div>
+      <a href="plans.html" class="btn btn-primary" style="padding:6px 12px; font-size:11px; display:inline-block; border-radius:4px; text-decoration:none; color:white; background:#3b82f6">Upgrade to Elite →</a>
+    </div>
+    <button onclick="this.closest('#khansaa-upgrade-toast').remove()" style="background:none; border:none; color:#71717a; cursor:pointer; font-size:16px; align-self:flex-start">✕</button>
+  `;
   document.body.appendChild(toast);
-  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 6000);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 8000);
 }
 
 // ── Intercept Arabic rewrite to check limit ───────────────────
@@ -1127,9 +1140,29 @@ window.doRewrite = _wrappedRewrite;
 (function addLockedFilterStyle() {
   const s = document.createElement('style');
   s.textContent = `
-    .locked-filter{opacity:0.45;cursor:not-allowed !important;position:relative}
-    .locked-filter::after{content:'🔒';margin-left:auto;font-size:11px}
-    .locked-input{opacity:0.6;cursor:not-allowed}
+    .locked-card { position: relative; cursor: pointer; overflow: hidden; filter: grayscale(0.5); }
+    .locked-card .card-body { filter: blur(5px); opacity: 0.7; pointer-events: none; user-select: none; }
+    .locked-card::after {
+      content: '🔒 Elite Access Required';
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: rgba(9, 9, 11, 0.4); color: white; font-weight: 700; font-size: 14px;
+      z-index: 10; transition: 0.3s;
+    }
+    .locked-card:hover::after { background: rgba(59, 130, 246, 0.2); transform: scale(1.05); }
+    
+    .locked-filter { position: relative; pointer-events: none; opacity: 0.6; }
+    .locked-filter::after { 
+      content: '🔒'; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px;
+    }
+
+    #khansaa-upgrade-toast {
+      position: fixed; bottom: 32px; right: 32px; z-index: 10000;
+      background: #18181b; border: 1px solid rgba(59, 130, 246, 0.4);
+      padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6); animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 400px; border-left: 4px solid #3b82f6;
+    }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   `;
   document.head.appendChild(s);
 })();

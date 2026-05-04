@@ -456,22 +456,14 @@ The system will rewrite it as professional UAE Arabic editorial content."
       document.getElementById('userAvatarInitial').textContent = (user.name || user.email || 'U')[0].toUpperCase();
       document.getElementById('udName').textContent = user.name || '—';
       document.getElementById('udEmail').textContent = user.email;
-      document.getElementById('udPlan').textContent = plan.isTrial ? 'Pro (Trial)' : (plan.name + ' Plan');
-      document.getElementById('userPlanBadge').textContent = plan.isTrial ? 'TRIAL' : plan.name.toUpperCase();
-      document.getElementById('userPlanBadge').className = 'user-plan-badge plan-' + (plan.isTrial ? 'trial' : plan.id);
+      document.getElementById('udPlan').textContent = plan.name + ' Plan';
+      document.getElementById('userPlanBadge').textContent = plan.name.toUpperCase();
+      document.getElementById('userPlanBadge').className = 'user-plan-badge plan-' + plan.id;
 
-
-
-      if (user.plan === 'free' && !plan.isTrial) {
+      if (plan.id === 'free') {
         document.getElementById('upgradeBanner').style.display = 'flex';
-        document.getElementById('upgradeBannerText').textContent = '⭐ You are on the Free plan — unlock all features with Pro.';
-      } else if (plan.isTrial) {
-        const daysLeft = Math.ceil((plan.trialEndsAt - Date.now()) / 86400000);
-        document.getElementById('upgradeBanner').style.display = 'flex';
-        document.getElementById('upgradeBannerText').textContent = `⏳ Pro Trial: ${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining.`;
-        document.getElementById('upgradeBanner').style.background = 'rgba(26,108,246,0.12)';
-        document.getElementById('upgradeBanner').style.borderBottom = '1px solid rgba(26,108,246,0.25)';
-        document.getElementById('upgradeBanner').style.color = '#7eb8ff';
+        document.getElementById('upgradeBannerText').textContent = '⭐ You are using Atheer Free. Upgrade to Elite to unlock unlimited translation & full intelligence access.';
+        document.getElementById('upgradeBanner').querySelector('.upgrade-banner-btn').textContent = 'Upgrade to Elite →';
       }
 
       window.__khansaaUser = user;

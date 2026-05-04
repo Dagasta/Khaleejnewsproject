@@ -11,9 +11,6 @@ const PLANS = {
 
 function getUserPlan(profile) {
   if (!profile) return PLANS.free;
-  const trialEndsAt = profile.trial_ends_at ? new Date(profile.trial_ends_at).getTime() : 0;
-  const isTrial = profile.plan === 'free' && trialEndsAt && Date.now() < trialEndsAt;
-  if (isTrial) return { ...PLANS.elite, isTrial: true, trialEndsAt };
   return PLANS[profile.plan] || PLANS.free;
 }
 
@@ -50,7 +47,7 @@ async function getCurrentUser() {
     
     // If STILL no profile, return a safe fallback so they don't get logged out
     if (!profile) {
-      profile = { id: session.user.id, plan: 'free', trial_ends_at: new Date(Date.now() + 14*86400000).toISOString() };
+      profile = { id: session.user.id, plan: 'free' };
     }
     
     return { ...profile, email: session.user.email };
