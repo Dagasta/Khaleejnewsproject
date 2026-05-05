@@ -6,10 +6,10 @@
 const SUPABASE_URL  = 'https://gnavcnhwsvbrwttivxfh.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImduYXZjbmh3c3Zicnd0dGl2eGZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NzY4MTEsImV4cCI6MjA5MzQ1MjgxMX0.DDb-PDMgPEXyS2lsbmo1pBH8MKIEfOrtld3LQleOgsM';
 
-// Ziina Payment Gateway (UAE)
+// Ziina Payment Gateway (UAE) — v2 API
 const ZIINA_API_KEY         = 'MXArml8Tc7aSO+m1KMcmDPLO20scOEaL1YnLs/xA4ACH49nouFNxjP0wUprwQsR2';
 const ZIINA_PUBLISHABLE_KEY = 'sb_publishable_0fRwQXwa_h7gtxR3vG6XqA_WgHexNAz';
-const ZIINA_API_BASE        = 'https://api-sandbox.ziina.com/api';
+const ZIINA_API_BASE        = 'https://api-v2.ziina.com/api';
 
 // Pricing in AED fils (1 AED = 100 fils)
 // $10 USD = ~37 AED (3700 fils)
