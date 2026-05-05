@@ -346,16 +346,15 @@ async function loadAllFeeds(isInitial = false) {
         allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
         if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
         
+        // REVEAL UI IMMEDIATELY
         loadingState.style.display = 'none';
         newsGrid.style.display     = 'grid';
         emptyState.style.display   = 'none';
         errorState.style.display   = 'none';
         
-        requestAnimationFrame(() => {
-          applyFiltersAndRender();
-          renderTicker();
-          renderRightPanel();
-        });
+        applyFiltersAndRender();
+        renderTicker();
+        renderRightPanel();
       }
       successCount++;
       sourceStatuses[s.name] = 'online';
@@ -370,11 +369,10 @@ async function loadAllFeeds(isInitial = false) {
   
   // ── FINAL RECOVERY ──
   if (allArticles.length === 0) {
-    console.warn("Live fetch yielded zero results. Activating Fallback Radar...");
     loadDemoFallback();
   }
   
-  // Ensure UI is ALWAYS revealed after scan
+  // FORCE UI REVEAL
   loadingState.style.display = 'none';
   newsGrid.style.display     = 'grid';
   
@@ -472,6 +470,10 @@ function renderDailyBrief() {
 }
 
 function renderTrending() {
+  if (!allArticles.length) {
+    trendingList.innerHTML = '<p class="brief-placeholder">Awaiting trending data...</p>';
+    return;
+  }
   // Sort by Priority (High first), then Official status
   const trending = [...allArticles].sort((a,b) => {
     if (a.priority === 'high' && b.priority !== 'high') return -1;
