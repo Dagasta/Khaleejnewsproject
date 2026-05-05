@@ -310,23 +310,26 @@ async function fetchFeed(source) {
 let _isInitialDataReady = false;
 
 async function loadAllFeeds(isInitial = false) {
-  // ── VISIBILITY GUARD: Show UI immediately if we have data
+  // ── UI INITIALIZATION
+  // If we have cached news, show it instantly so user doesn't wait
   if (allArticles.length > 0) {
     loadingState.style.display = 'none';
     newsGrid.style.display     = 'grid';
     emptyState.style.display   = 'none';
   } else if (isInitial) {
+    // Only show the spinner if we have absolutely zero data
     loadingState.style.display = 'flex';
     newsGrid.style.display     = 'none';
   }
 
-  lastUpdated.innerHTML    = '<span class="radar-scan"></span> Neural Sync Active...';
+  lastUpdated.innerHTML    = '<span class="radar-scan"></span> High-Speed Sync...';
   lastUpdated.style.color    = '#3b82f6';
 
   const sortedSources = [...SOURCES].sort((a,b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
   let successCount = 0;
 
-  const CONCURRENCY_LIMIT = 8;
+  // ── OPTIMIZED CONCURRENCY (Parallel limit of 6 to prevent congestion)
+  const CONCURRENCY_LIMIT = 6;
   const processSource = async (s) => {
     try {
       const feedItems = await fetchFeed(s);
@@ -345,7 +348,7 @@ async function loadAllFeeds(isInitial = false) {
         allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
         if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
         
-        // REVEAL UI INSTANTLY
+        // REVEAL UI AS SOON AS ANY LIVE NEWS ARRIVES
         if (loadingState.style.display !== 'none') {
           loadingState.style.display = 'none';
           newsGrid.style.display     = 'grid';
@@ -365,6 +368,7 @@ async function loadAllFeeds(isInitial = false) {
     }
   };
 
+  // Run in optimized batches
   for (let i = 0; i < sortedSources.length; i += CONCURRENCY_LIMIT) {
     await Promise.allSettled(sortedSources.slice(i, i + CONCURRENCY_LIMIT).map(processSource));
     saveToStorage();
