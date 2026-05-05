@@ -219,11 +219,16 @@
       // Check for successful payment redirect
       const params = new URLSearchParams(location.search);
       if (params.get('payment') === 'success' && user) {
-        const plan  = params.get('plan')  || 'pro';
+        const plan  = params.get('plan')  || 'elite';
         const cycle = params.get('cycle') || 'monthly';
+        
+        // Instant Access: Update plan and set expiration to 30 days from now
         window.KhansaaAuth.updateUserPlan(user.id, plan, cycle).then(() => {
           showSuccessBanner(plan, cycle);
-          history.replaceState({}, '', 'plans.html');
+          // Remove query params to prevent double-updates
+          window.history.replaceState({}, '', window.location.pathname);
+          // Force a small delay then redirect to dashboard to start using elite features
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
         });
       }
     });

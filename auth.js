@@ -107,10 +107,16 @@ async function trackRewrite(userId) {
   await sb().from('profiles').update({ rewrites_today: usedToday + 1, rewrites_date: today }).eq('id', userId);
 }
 
-async function requireAuth() {
-  const user = await getCurrentUser();
-  if (!user) { window.location.href = 'auth.html'; return null; }
-  return user;
+function isSubscriptionValid(profile) {
+  if (!profile) return false;
+  if (profile.plan === 'free') return true; 
+  if (!profile.trial_ends_at) return false;
+  
+  const now = new Date();
+  const expiry = new Date(profile.trial_ends_at);
+  
+  // Return true only if the expiration date is in the future
+  return expiry > now;
 }
 
-window.KhansaaAuth = { PLANS, getUserPlan, canRewrite, getCurrentUser, signUp, signIn, signOut, updateUserPlan, trackRewrite, requireAuth };
+window.KhansaaAuth = { PLANS, getUserPlan, canRewrite, getCurrentUser, signUp, signIn, signOut, updateUserPlan, trackRewrite, requireAuth, isSubscriptionValid };
