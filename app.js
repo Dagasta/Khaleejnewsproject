@@ -534,8 +534,9 @@ function applyFiltersAndRender() {
 
   if (activePriority !== 'all') filtered = filtered.filter(a => a.priority === activePriority);
 
-  // ── Subscription: search gating
+  // ── Subscription: search gating + Freemium UX
   const plan = getPlan();
+  const isFree = plan.id === 'free';
   if (searchQuery) {
     if (!plan.limits.hasSearch) {
       showUpgradePrompt('search');
@@ -544,10 +545,6 @@ function applyFiltersAndRender() {
     const q = searchQuery.toLowerCase();
     filtered = filtered.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
   }
-
-  // ── Smart Limitations (Freemium UX)
-  const plan = getPlan();
-  const isFree = plan.id === 'free';
   
   // High-End Strategy: Show all articles but blur after 5
   // We no longer slice (which was causing 'empty' looking lists)
