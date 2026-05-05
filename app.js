@@ -48,19 +48,19 @@ const SOURCES = [
   { name: 'Forbes Middle East',      url: 'https://www.forbesmiddleeast.com/rss',      label: 'Forbes', cat: 'economy' },
   
   // 💹 ECONOMY, CREDIT & DEBT (The Analysts)
-  { name: 'Fitch / Moody\'s Focus',   url: 'https://news.google.com/rss/search?q=when:7D+(source:Fitch+OR+source:Moody)+UAE&hl=en-AE&gl=AE&ceid=AE:en', label: 'Credit', cat: 'economy' },
+  { name: 'Fitch / Moody\'s Focus',   url: 'https://news.google.com/rss/search?q=when:24h+(source:Fitch+OR+source:Moody)+UAE&hl=en-AE&gl=AE&ceid=AE:en', label: 'Credit', cat: 'economy' },
   { name: 'Zawya UAE Economy',       url: 'https://www.zawya.com/en/rss/economy',     label: 'Zawya', cat: 'economy' },
   { name: 'Mubasher UAE Biz',        url: 'https://feeds.feedburner.com/MubasherUaeEn', label: 'Mubasher', cat: 'economy' },
-  { name: 'Dubai Business Sniper',    url: 'https://news.google.com/rss/search?q=when:24h+Dubai+Business+Economy&hl=en-AE&gl=AE&ceid=AE:en', label: 'DXB BIZ', cat: 'economy' },
+  { name: 'Dubai Business Sniper',    url: 'https://news.google.com/rss/search?q=when:1h+Dubai+Business+Economy&hl=en-AE&gl=AE&ceid=AE:en', label: 'DXB BIZ', cat: 'economy' },
 
   // 🏛️ POLITICS & GCC (Regional Stability)
-  { name: 'GCC Political Radar',     url: 'https://news.google.com/rss/search?q=when:7D+GCC+Politics+Summit+Diplomacy&hl=en-US&gl=US&ceid=US:en', label: 'GCC', cat: 'politics' },
+  { name: 'GCC Political Radar',     url: 'https://news.google.com/rss/search?q=when:24h+GCC+Politics+Summit+Diplomacy&hl=en-US&gl=US&ceid=US:en', label: 'GCC', cat: 'politics' },
   { name: 'Reuters ME Politics',      url: 'https://www.reutersagency.com/feed/?best-topics=middle-east&post_type=best', label: 'Reuters', cat: 'politics' },
   { name: 'Al Arabiya GCC Wire',     url: 'https://news.google.com/rss/search?q=when:24h+Al+Arabiya+GCC+region+politics&hl=en-US&gl=US&ceid=US:en', label: 'AlArabiya', cat: 'politics' },
 
   // 🏆 GLOBAL RANKINGS (Index & Achievements)
-  { name: 'Global Index Sniper',     url: 'https://news.google.com/rss/search?q=when:30D+UAE+Ranked+Index+Competitiveness&hl=en-US&gl=US&ceid=US:en', label: 'INDEX', cat: 'rankings' },
-  { name: 'Dubai Achievements',      url: 'https://news.google.com/rss/search?q=when:30D+Dubai+Awarded+Ranking+Top+10&hl=en-US&gl=US&ceid=US:en', label: 'AWARD', cat: 'rankings' },
+  { name: 'Global Index Sniper',     url: 'https://news.google.com/rss/search?q=when:24h+UAE+Ranked+Index+Competitiveness&hl=en-US&gl=US&ceid=US:en', label: 'INDEX', cat: 'rankings' },
+  { name: 'Dubai Achievements',      url: 'https://news.google.com/rss/search?q=when:24h+Dubai+Awarded+Ranking+Top+10&hl=en-US&gl=US&ceid=US:en', label: 'AWARD', cat: 'rankings' },
 
   // 💰 GOLD & CRYPTO (The First-Mover Analysis)
   { name: 'Investing.com Gold',      url: 'https://www.investing.com/rss/news_301.rss', label: 'Gold', cat: 'markets' },
@@ -303,9 +303,13 @@ async function loadAllFeeds(isInitial = false) {
 
   lastUpdated.innerHTML = '<span class="radar-scan"></span> Syncing Newsroom...';
   
-  const sortedSources = [...SOURCES].sort((a,b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
+  const sortedSources = [...SOURCES].sort((a,b) => {
+    if (a.cat === 'uae' && b.cat !== 'uae') return -1;
+    if (b.cat === 'uae' && a.cat !== 'uae') return 1;
+    return (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0);
+  });
   let successCount = 0;
-  const CONCURRENCY = 6;
+  const CONCURRENCY = 12; // Parallel burst for near-instant population
 
   for (let i = 0; i < sortedSources.length; i += CONCURRENCY) {
     const batch = sortedSources.slice(i, i + CONCURRENCY);
@@ -318,7 +322,12 @@ async function loadAllFeeds(isInitial = false) {
           allArticles.unshift(item);
         }
       });
-      allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+      allArticles.sort((a,b) => {
+        // UAE Content is absolute priority #1
+        if (a.isUAE !== b.isUAE) return b.isUAE ? 1 : -1;
+        // Then recency
+        return new Date(b.pubDate) - new Date(a.pubDate);
+      });
       if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
       
       if (allArticles.length > 0) {
