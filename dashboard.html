@@ -468,6 +468,13 @@ The system will rewrite it as professional UAE Arabic editorial content."
 
       window.__khansaaUser = user;
       window.__khansaaPlan = plan;
+
+      // ── CLEANUP: Clear search bar and prevent email autofill
+      const sInput = document.getElementById('searchInput');
+      if (sInput) {
+        sInput.value = '';
+        sInput.blur();
+      }
     })();
 
     function toggleUserMenu() {
