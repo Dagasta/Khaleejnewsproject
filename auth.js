@@ -23,10 +23,17 @@ function canRewrite(profile) {
 }
 
 /* ── Supabase helpers ──────────────────────────────────────── */
-function sb() { return window.KhansaaConfig?.getSupabaseClient(); }
+function sb() { 
+  const client = window.KhansaaConfig?.getSupabaseClient();
+  if (!client) console.error("Supabase client is NOT initialized. Check config.");
+  return client; 
+}
 
 async function getProfile(userId) {
-  const { data } = await sb().from('profiles').select('*').eq('id', userId).single();
+  const client = sb();
+  if (!client) return null;
+  const { data, error } = await client.from('profiles').select('*').eq('id', userId).single();
+  if (error) console.warn("Profile fetch warning:", error.message);
   return data;
 }
 
@@ -41,7 +48,7 @@ async function getCurrentUser() {
     
     // Auto-retry if profile trigger hasn't finished yet (common after signup)
     if (!profile) {
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise(r => setTimeout(r, 1200));
       profile = await getProfile(session.user.id);
     }
     
@@ -59,7 +66,8 @@ async function getCurrentUser() {
 
 async function signUp(name, email, password) {
   try {
-    const { data, error } = await sb().auth.signUp({
+    const client = sb();
+    const { data, error } = await client.auth.signUp({
       email, password,
       options: { data: { name } }
     });
@@ -70,7 +78,9 @@ async function signUp(name, email, password) {
 
 async function signIn(email, password) {
   try {
-    const { data, error } = await sb().auth.signInWithPassword({ email, password });
+    const client = sb();
+    if (!client) return { ok: false, error: 'System not initialized' };
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
     if (error) return { ok: false, error: error.message };
     return { ok: true, user: data.user };
   } catch(e) { return { ok: false, error: e.message }; }
@@ -81,23 +91,27 @@ async function signOut() {
   window.location.href = 'auth.html';
 }
 
+async function requireAuth() {
+  const user = await getCurrentUser();
+  if (!user) { 
+    if (!window.location.pathname.includes('auth.html')) {
+      window.location.href = 'auth.html'; 
+    }
+    return null; 
+  }
+  return user;
+}
+
 async function updateUserPlan(userId, plan, cycle) {
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // Exactly 1 month (30 days)
+  expiresAt.setDate(expiresAt.getDate() + 30);
   
   await sb().from('profiles').update({ 
     plan, 
     billing_cycle: cycle, 
     subscribed_at: new Date().toISOString(),
-    trial_ends_at: expiresAt.toISOString() // This acts as the expiration guard
+    trial_ends_at: expiresAt.toISOString()
   }).eq('id', userId);
-}
-
-function isSubscriptionValid(profile) {
-  if (!profile) return false;
-  if (profile.plan === 'free') return true; // Free is always "valid" (though limited)
-  if (!profile.trial_ends_at) return false;
-  return new Date(profile.trial_ends_at) > new Date();
 }
 
 async function trackRewrite(userId) {
@@ -114,9 +128,20 @@ function isSubscriptionValid(profile) {
   
   const now = new Date();
   const expiry = new Date(profile.trial_ends_at);
-  
-  // Return true only if the expiration date is in the future
   return expiry > now;
 }
 
-window.KhansaaAuth = { PLANS, getUserPlan, canRewrite, getCurrentUser, signUp, signIn, signOut, updateUserPlan, trackRewrite, requireAuth, isSubscriptionValid };
+// Export global object
+window.KhansaaAuth = { 
+  PLANS, 
+  getUserPlan, 
+  canRewrite, 
+  getCurrentUser, 
+  signUp, 
+  signIn, 
+  signOut, 
+  updateUserPlan, 
+  trackRewrite, 
+  requireAuth, 
+  isSubscriptionValid 
+};
