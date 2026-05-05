@@ -249,9 +249,9 @@
     }
 
     async function selectPlan(plan) {
-      if (!currentUser) { window.location.href = 'auth.html?tab=signup'; return; }
-      if (currentUser.plan === plan) return;
+      if (currentUser && currentUser.plan === plan) return;
       if (plan === 'free') {
+        if (!currentUser) { window.location.href = 'auth.html?tab=signup'; return; }
         await window.KhansaaAuth.updateUserPlan(currentUser.id, 'free', 'monthly');
         window.location.href = 'dashboard.html';
         return;
