@@ -82,7 +82,22 @@ async function signOut() {
 }
 
 async function updateUserPlan(userId, plan, cycle) {
-  await sb().from('profiles').update({ plan, billing_cycle: cycle, subscribed_at: new Date().toISOString() }).eq('id', userId);
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30); // Exactly 1 month (30 days)
+  
+  await sb().from('profiles').update({ 
+    plan, 
+    billing_cycle: cycle, 
+    subscribed_at: new Date().toISOString(),
+    trial_ends_at: expiresAt.toISOString() // This acts as the expiration guard
+  }).eq('id', userId);
+}
+
+function isSubscriptionValid(profile) {
+  if (!profile) return false;
+  if (profile.plan === 'free') return true; // Free is always "valid" (though limited)
+  if (!profile.trial_ends_at) return false;
+  return new Date(profile.trial_ends_at) > new Date();
 }
 
 async function trackRewrite(userId) {

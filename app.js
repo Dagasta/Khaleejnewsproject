@@ -6,7 +6,19 @@
 'use strict';
 
 // ── PLAN GATING (initialized after auth guard in index.html) ──
-function getPlan() { return window.__khansaaPlan || { limits:{ hasSearch:true,hasFilters:true,hasMarkets:true,arabicRewrites:Infinity,articlesPerDay:Infinity } }; }
+function getPlan() { 
+  const user = window.__khansaaUser;
+  const plan = window.__khansaaPlan || { id:'free', limits:{ hasSearch:false,hasFilters:false,hasMarkets:false,articlesPerDay:20 } };
+  
+  // Strict Expiration Check: If plan is paid but date has passed, force 'free' limits
+  if (user && user.plan !== 'free') {
+    const expires = user.trial_ends_at ? new Date(user.trial_ends_at) : null;
+    if (!expires || expires < new Date()) {
+      return { id:'free', limits:{ hasSearch:false,hasFilters:false,hasMarkets:false,articlesPerDay:20,arabicRewrites:3 } };
+    }
+  }
+  return plan;
+}
 function getUser() { return window.__khansaaUser || null; }
 
 // ── CONFIG ──────────────────────────────────────────────────
