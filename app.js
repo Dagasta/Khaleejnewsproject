@@ -267,34 +267,19 @@ async function fetchWithProxy(url) {
   const race = shuffled.slice(0, raceCount).map(proxyFn => {
     return (async () => {
       try {
-        // Fast timeout for the race phase: 6 seconds
-        const res = await fetch(proxyFn(url), { 
-          signal: controller.signal,
-          priority: 'high'
-        });
-        if (!res.ok) throw new Error('Proxy fail');
-        const text = await res.text();
-        if (text && text.length > 300) {
-          controller.abort(); 
-          return text;
-        }
-        throw new Error('Invalid');
-      } catch (e) {
-        throw e;
-      }
+      const res = await fetch(p(url), { signal: AbortSignal.timeout(8000) });
+      if (res.ok) return await res.text();
+      throw new Error('fail');
     })();
   });
-
+  
   try {
-    // Return the first successful result instantly
     return await Promise.any(race);
   } catch (e) {
-    // Ultra-fast Fallback: Race the remaining proxies in a second batch
-    const secondaryRace = shuffled.slice(raceCount, raceCount + 4).map(proxyFn => {
+    // Failover to secondary batch if primary race fails
+    const secondaryRace = PROXIES.slice(4).map(p => {
       return (async () => {
         try {
-          const res = await fetch(proxyFn(url), { signal: AbortSignal.timeout(8000) });
-          if (!res.ok) throw new Error('Proxy fail');
           const text = await res.text();
           if (text && text.length > 300) return text;
           throw new Error('fail');
@@ -337,10 +322,22 @@ async function loadAllFeeds(isInitial = false) {
   lastUpdated.innerHTML    = '<span class="radar-scan"></span> High-Speed Sync...';
   lastUpdated.style.color    = '#3b82f6';
 
-  const sortedSources = [...SOURCES].sort((a,b) => (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0));
-  let successCount = 0;
+  // High-Speed Parallel Processing
+  const sortedSources = [...SOURCES].sort((a,b) => {
+    // UAE Official (WAM) is the absolute priority
+    if (a.name.includes('WAM')) return -1;
+    if (b.name.includes('WAM')) return 1;
+    // Then all UAE sources
+    if (a.cat === 'uae' && b.cat !== 'uae') return -1;
+    if (b.cat === 'uae' && a.cat !== 'uae') return 1;
+    // Then Official status
+    return (b.isOfficial ? 1 : 0) - (a.isOfficial ? 1 : 0);
+  });
 
-  const CONCURRENCY_LIMIT = 6;
+  let successCount = 0;
+  // Increase concurrency for faster network utilization
+  const CONCURRENCY_LIMIT = 10; 
+  
   const processSource = async (s) => {
     try {
       const feedItems = await fetchFeed(s);
@@ -356,10 +353,17 @@ async function loadAllFeeds(isInitial = false) {
       });
 
       if (addedAny || (isInitial && allArticles.length > 0)) {
-        allArticles.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+        // High-Performance Sorting: UAE + Date + Priority
+        allArticles.sort((a,b) => {
+          if (a.isUAE !== b.isUAE) return b.isUAE ? 1 : -1;
+          if (a.priority === 'high' && b.priority !== 'high') return -1;
+          if (b.priority === 'high' && a.priority !== 'high') return 1;
+          return new Date(b.pubDate) - new Date(a.pubDate);
+        });
+
         if (allArticles.length > 2000) allArticles = allArticles.slice(0, 2000);
         
-        // REVEAL UI IMMEDIATELY
+        // Instant UI Reveal
         loadingState.style.display = 'none';
         newsGrid.style.display     = 'grid';
         emptyState.style.display   = 'none';
@@ -376,6 +380,7 @@ async function loadAllFeeds(isInitial = false) {
     }
   };
 
+  // Launch parallel groups
   for (let i = 0; i < sortedSources.length; i += CONCURRENCY_LIMIT) {
     await Promise.allSettled(sortedSources.slice(i, i + CONCURRENCY_LIMIT).map(processSource));
   }
