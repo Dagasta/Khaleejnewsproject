@@ -11,10 +11,9 @@ const ZIINA_API_KEY         = 'MXArml8Tc7aSO+m1KMcmDPLO20scOEaL1YnLs/xA4ACH49nou
 const ZIINA_PUBLISHABLE_KEY = 'sb_publishable_0fRwQXwa_h7gtxR3vG6XqA_WgHexNAz';
 const ZIINA_API_BASE        = 'https://api-v2.ziina.com/api';
 
-// Pricing in AED fils (1 AED = 100 fils)
-// Fixed at $10 USD equivalent (~36.70 AED)
+// Pricing in USD base units (100 cents = $1)
 const ZIINA_PRICES = {
-  elite: { monthly: 3670, yearly: 18350 } // $10 and $50 equivalents
+  elite: { monthly: 1000, yearly: 5000 }
 };
 
 // Initialize Supabase client (requires Supabase CDN loaded first)
