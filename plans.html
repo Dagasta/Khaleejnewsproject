@@ -269,7 +269,7 @@
       btn.disabled = true;
 
       try {
-        const res = await fetch(`${ZIINA_API_BASE}/payment_intents`, {
+        const res = await fetch(`${ZIINA_API_BASE}/payment_intent`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${ZIINA_API_KEY}`,
@@ -278,10 +278,10 @@
           body: JSON.stringify({
             amount: amountFils,
             currency_code: 'AED',
-            transaction_source: 'directPayment',
-            success_url: successUrl,
-            failure_url: cancelUrl,
             message: `Atheer ${plan.charAt(0).toUpperCase()+plan.slice(1)} Plan — ${billingCycle}`,
+            success_url: successUrl,
+            cancel_url: cancelUrl,
+            failure_url: cancelUrl,
             test: true
           })
         });
