@@ -8,15 +8,16 @@
 // ── PLAN GATING (initialized after auth guard in index.html) ──
 function getPlan() { 
   const user = window.__khansaaUser;
-  const plan = window.__khansaaPlan || { id:'free', limits:{ hasSearch:false,hasFilters:false,hasMarkets:false,articlesPerDay:20 } };
-  
-  // Strict Expiration Check: If plan is paid but date has passed, force 'free' limits
+  // If user is Elite but expired, they get 'free' limits
   if (user && user.plan !== 'free') {
     const expires = user.trial_ends_at ? new Date(user.trial_ends_at) : null;
-    if (!expires || expires < new Date()) {
-      return { id:'free', limits:{ hasSearch:false,hasFilters:false,hasMarkets:false,articlesPerDay:20,arabicRewrites:3 } };
+    if (expires && expires < new Date()) {
+      return { id:'free', name:'Free', limits:{ hasSearch:false,hasFilters:false,hasMarkets:false,articlesPerDay:20,arabicRewrites:3, maxVisibleNews:3 } };
     }
   }
+  const plan = window.__khansaaPlan || { id:'free', name:'Free', limits:{ hasSearch:false,hasFilters:false,hasMarkets:false,articlesPerDay:20,arabicRewrites:3, maxVisibleNews:3 } };
+  // Ensure the free plan object has the maxVisibleNews limit
+  if (plan.id === 'free') plan.limits.maxVisibleNews = 3;
   return plan;
 }
 function getUser() { return window.__khansaaUser || null; }
@@ -602,12 +603,23 @@ function applyFiltersAndRender() {
 function renderCard(a, i) {
   const plan = getPlan();
   const isFree = plan.id === 'free';
-  const isLocked = isFree && i >= 5; // First 5 articles are free, rest are blurred
+  const maxVisible = plan.limits.maxVisibleNews || Infinity;
+  const isLocked = isFree && i >= maxVisible; 
+  
   const lockClass = isLocked ? 'locked-card' : '';
   const isFeatured = i === 0 && activeFilter === 'all' && activePriority === 'all' && !searchQuery && !isLocked;
   const catLabel   = CATEGORIES[a.category]?.label.split(' ')[0] || a.category;
   const listClass  = isListView ? 'list-view' : '';
   const featuredBadge = isFeatured ? `<div class="featured-badge">★ Top Story</div>` : '';
+
+  const lockOverlay = isLocked ? `
+    <div class="lock-overlay">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Subscribe to Unlock</div>
+      <div class="lock-subText">Get unlimited access to all verified intelligence.</div>
+      <a href="plans.html" class="lock-btn">Go Elite →</a>
+    </div>
+  ` : '';
 
   if (isFeatured) {
     return `
@@ -627,6 +639,7 @@ function renderCard(a, i) {
             <span class="card-read">Read more →</span>
           </div>
         </div>
+        ${lockOverlay}
       </div>`;
   }
 
@@ -646,6 +659,7 @@ function renderCard(a, i) {
           <span class="card-read">Read more →</span>
         </div>
       </div>
+      ${lockOverlay}
     </div>`;
 }
 

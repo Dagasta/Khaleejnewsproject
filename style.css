@@ -555,3 +555,77 @@ body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-pri
 /* Plan-color accents in dropdown */
 .ud-item[href="plans.html"]{color:var(--accent-gold) !important}
 .ud-item[href="plans.html"]:hover{background:rgba(245,158,11,0.07) !important}
+
+/* ==========================================
+   SAAS — CONTENT LOCKING
+   ========================================== */
+.locked-card {
+  position: relative;
+  overflow: hidden;
+  cursor: default !important;
+}
+
+.locked-card .card-body {
+  filter: blur(8px) grayscale(40%);
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(9, 9, 11, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  text-align: center;
+  padding: 20px;
+  animation: lock-fade-in 0.3s ease;
+}
+
+.lock-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 8px rgba(234, 179, 8, 0.4));
+}
+
+.lock-text {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.lock-subText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  max-width: 200px;
+}
+
+.lock-btn {
+  padding: 8px 20px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+  border-radius: 99px;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.lock-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+}
+
+@keyframes lock-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
