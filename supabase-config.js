@@ -13,7 +13,7 @@ const ZIINA_API_BASE        = 'https://api-v2.ziina.com/api';
 
 // Pricing in USD base units (100 cents = $1)
 const ZIINA_PRICES = {
-  elite: { monthly: 1000, yearly: 5000 }
+  elite: { monthly: 1000 }
 };
 
 // Initialize Supabase client (requires Supabase CDN loaded first)

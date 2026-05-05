@@ -123,10 +123,6 @@
       <div class="hero-badge">⭐ 14-Day Pro Trial • No Credit Card Required</div>
       <h1>Choose Your <span>Editorial Power</span></h1>
       <p>Unlock the full potential of خنساء's editorial intelligence — from live news scanning to AI-powered Arabic rewriting.</p>
-      <div class="billing-toggle">
-        <button class="bill-opt active" id="billMonthly" onclick="setBilling('monthly')">Monthly</button>
-        <button class="bill-opt" id="billYearly" onclick="setBilling('yearly')">Yearly <span class="save-badge">Save 17%</span></button>
-      </div>
     </div>
 
     <div class="plans-grid">
@@ -160,7 +156,6 @@
         </div>
         <div>
           <div class="plan-price"><span class="price-currency">$</span><span class="price-amount" id="elite-price">10</span><span class="price-period" id="elite-period">/mo</span></div>
-          <div class="price-yearly-note" id="elite-yearly-note" style="display:none">Billed $50/year — save $70</div>
         </div>
         <div class="plan-features">
           <div class="feat-row"><div class="feat-check yes">✓</div>Unlimited articles</div>
@@ -242,16 +237,6 @@
       setTimeout(() => b.remove(), 5000);
     }
 
-    function setBilling(cycle) {
-      billingCycle = cycle;
-      document.getElementById('billMonthly').classList.toggle('active', cycle === 'monthly');
-      document.getElementById('billYearly').classList.toggle('active',  cycle === 'yearly');
-      document.getElementById('elite-price').textContent = cycle === 'yearly' ? '50' : '10';
-      document.getElementById('elite-yearly-note').style.display = cycle === 'yearly' ? 'block' : 'none';
-      if(cycle==='yearly') {
-        document.getElementById('elite-price').textContent = '4.16';
-      }
-    }
 
     async function selectPlan(plan) {
       if (currentUser && currentUser.plan === plan) return;
