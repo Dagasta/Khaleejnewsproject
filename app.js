@@ -500,6 +500,15 @@ document.querySelectorAll('[data-filter]').forEach(btn => {
   });
 });
 
+document.querySelectorAll('[data-priority]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-priority]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activePriority = btn.dataset.priority;
+    applyFiltersAndRender();
+  });
+});
+
 searchInput.addEventListener('input', () => {
   searchQuery = searchInput.value.trim();
   applyFiltersAndRender();
